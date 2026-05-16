@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Jogo Educativo</title>
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --secondary: #4ecdc4;
+            --accent: #ffe66d;
+            --bg: #f7f9fc;
+            --text: #2f3e46;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Ubuntu', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #ff4a5a;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px #fff;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Menu de Navegação */
+        .menu {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .menu-btn {
+            background-color: white;
+            border: 3px solid var(--text);
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 var(--text);
+            transition: all 0.1s ease;
+        }
+
+        .menu-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0px 0 var(--text);
+        }
+
+        #btn-vogais { border-color: #ff6b6b; color: #ff6b6b; }
+        #btn-abc { border-color: #4ecdc4; color: #4ecdc4; }
+        #btn-numeros { border-color: #ff9f43; color: #ff9f43; }
+
+        .menu-btn.active {
+            background-color: #f0f0f0;
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 var(--text);
+        }
+
+        /* Submenu de Níveis */
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .level-btn {
+            background-color: #fff;
+            border: 2px solid var(--text);
+            padding: 6px 15px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 3px 0 var(--text);
+            transition: all 0.1s ease;
+        }
+
+        .level-btn.active {
+            background-color: var(--text);
+            color: white;
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 var(--text);
+        }
+
+        /* Áreas de Jogo */
+        .game-section {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            max-width: 650px;
+            width: 100%;
+            text-align: center;
+            border: 4px solid #e0e0e0;
+        }
+
+        .game-section.active {
+            display: block;
+        }
+
+        /* Estilo das Vogais e ABC */
+        .card-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .letter-btn {
+            background-color: var(--accent);
+            border: 3px solid var(--text);
+            font-size: 1.8rem;
+            font-weight: bold;
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--text);
+        }
+
+        .letter-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 var(--text);
+        }
+
+        .display-card {
+            background: #fff3cd;
+            border: 3px dashed #ffc107;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .big-char {
+            font-size: 5rem;
+            margin: 0;
+            color: #ff6b6b;
+            line-height: 1;
+        }
+
+        .word-example {
+            font-size: 2rem;
+            margin: 15px 0 0 0;
+            font-weight: bold;
+            color: #2f3e46;
+        }
+
+        /* Estilo do Abecedário */
+        .abc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+            gap: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f0fbfc;
+            border-radius: 12px;
+            border: 2px solid #4ecdc4;
+        }
+
+        /* Estilo dos Números */
+        .count-zone {
+            font-size: 1.8rem;
+            letter-spacing: 3px;
+            margin: 15px 0;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+            line-height: 1.6;
+            word-break: break-all;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            background-color: #a29bfe;
+            color: white;
+            border: 3px solid var(--text);
+            font-size: 1.8rem;
+            font-weight: bold;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 var(--text);
+        }
+
+        .option-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0px 0 var(--text);
+        }
+
+        .score {
+            font-size: 1.3rem;
+            color: #2ec043;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* Secção de Apoio / Donativos */
+        .donation-container {
+            margin-top: 50px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .btn-support {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border: 3px solid #1e7e43;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #1e7e43;
+            width: 100%;
+            transition: all 0.1s ease;
+        }
+
+        .btn-support:active {
+            transform: translateY(5px);
+            box-shadow: 0 0px 0 #1e7e43;
+        }
+
+        .support-info {
+            display: none;
+            margin-top: 15px;
+            background-color: #ebfef2;
+            border: 2px dashed #27ae60;
+            padding: 20px;
+            border-radius: 15px;
+            color: #1e7e43;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎈 Super Jogo Educativo 🎈</h1>
+    
+    <!-- Menu Principal -->
+    <div class="menu">
+        <button id="btn-vogais" class="menu-btn active" onclick="switchTab('vogais')">1° Vogais</button>
+        <button id="btn-abc" class="menu-btn" onclick="switchTab('abc')">2° Abecedário</button>
+        <button id="btn-numeros" class="menu-btn" onclick="switchTab('numeros')">3° Números</button>
+    </div>
+
+    <!-- 1° SECÇÃO: VOGAIS -->
+    <div id="section-vogais" class="game-section active">
+        <h2>Vamos ler as Vogais! 🗣️</h2>
+        <p>Clica numa vogal para ouvir e aprender novas palavras:</p>
+        <div class="card-container">
+            <button class="letter-btn" onclick="showVowel('A')">A</button>
+            <button class="letter-btn" onclick="showVowel('E')">E</button>
+            <button class="letter-btn" onclick="showVowel('I')">I</button>
+            <button class="letter-btn" onclick="showVowel('O')">O</button>
+            <button class="letter-btn" onclick="showVowel('U')">U</button>
+        </div>
+        <div class="display-card">
+            <p class="big-char" id="vowel-char">A</p>
+            <p class="word-example" id="vowel-word">Abelha 🐝</p>
+        </div>
+    </div>
+
+    <!-- 2° SECÇÃO: ABECEDÁRIO -->
+    <div id="section-abc" class="game-section">
+        <h2>O Alfabeto Completo! 🔤</h2>
+        
+        <!-- Seleção de Níveis do Abecedário -->
+        <div class="level-selector">
+            <button id="lvl-abc-1" class="level-btn active" onclick="setAbcLevel(1)">Nível 1 (A - H)</button>
+            <button id="lvl-abc-2" class="level-btn" onclick="setAbcLevel(2)">Nível 2 (I - Q)</button>
+            <button id="lvl-abc-3" class="level-btn" onclick="setAbcLevel(3)">Nível 3 (R - Z)</button>
+        </div>
+
+        <p>Clica nas letras para ouvir e ver exemplos diferentes!</p>
+        <div class="abc-grid" id="abc-container"></div>
+        <div class="display-card" style="background: #e6fffa; border-color: #4ecdc4;">
+            <p class="big-char" id="abc-char" style="color: #4ecdc4;">A</p>
+            <p class="word-example" id="abc-word">Abelha 🐝</p>
+        </div>
+    </div>
+
+    <!-- 3° SECÇÃO: NÚMEROS -->
+    <div id="section-numeros" class="game-section">
+        <h2>Vamos Contar! 🔢</h2>
+        
+        <!-- Seleção de Níveis dos Números -->
+        <div class="level-selector">
+            <button id="lvl-num-1" class="level-btn active" onclick="setNumLevel(1)">Facilzinho (1 - 10)</button>
+            <button id="lvl-num-2" class="level-btn" onclick="setNumLevel(2)">Intermédio (11 - 50)</button>
+            <button id="lvl-num-3" class="level-btn" onclick="setNumLevel(3)">Super Contador (51 - 100)</button>
+        </div>
+
+        <div class="score">Pontos: <span id="score-val">0</span> ⭐</div>
+        <p>Quantos objetos vês no quadrado abaixo?</p>
+        <div class="display-card" style="background: #f3f0ff; border-color: #a29bfe;">
+            <div class="count-zone" id="objects-zone">🍎🍎🍎</div>
+        </div>
+        <div class="options-grid" id="options-zone"></div>
+    </div>
+
+    <!-- BOTÃO DE DONATIVOS -->
+    <div class="donation-container">
+        <button class="btn-support" onclick="toggleSupport()">APOIA OS NOSSOS PROJETOS ❤️</button>
+        <div id="support-box" class="support-info">
+            <strong>Apoia nossos projetos enviando donativos para este Iban:</strong><br>
+            <span style="font-size: 1.3rem; font-weight: bold; display: block; margin: 10px 0; color: #2f3e46;">
+                0044 0000 73186384101 27
+            </span>
+            OBRIGADO NÓS AGRADECEMOS.
+        </div>
+    </div>
+
+    <script>
+        // Dicionário expandido com ARRAY de múltiplos exemplos por letra
+        const dicionarioLetras = {
+            'A': [
+                { palavra: 'Abelha 🐝', som: 'Abelha' },
+                { palavra: 'Anel 💍', som: 'Anel' },
+                { palavra: 'Avião ✈️', som: 'Avião' }
+            ],
+            'B': [
+                { palavra: 'Bola ⚽', som: 'Bola' },
+                { palavra: 'Boneca 🪆', som: 'Boneca' },
+                { palavra: 'Banana 🍌', som: 'Banana' }
+            ],
+            'C': [
+                { palavra: 'Carro 🚗', som: 'Carro' },
+                { palavra: 'Casa 🏠', som: 'Casa' },
+                { palavra: 'Coelho 🐇', som: 'Coelho' }
+            ],
+            'D': [
+                { palavra: 'Dado 🎲', som: 'Dado' },
+                { palavra: 'Dente 🦷', som: 'Dente' },
+                { palavra: 'Dinossauro 🦖', som: 'Dinossauro' }
+            ],
+            'E': [
+                { palavra: 'Elefante 🐘', som: 'Elefante' },
+                { palavra: 'Escova 🪥', som: 'Escova' },
+                { palavra: 'Estrela ⭐', som: 'Estrela' }
+            ],
+            'F': [
+                { palavra: 'Foca 🦭', som: 'Foca' },
+                { palavra: 'Fogo 🔥', som: 'Fogo' },
+                { palavra: 'Faca 🔪', som: 'Faca' }
+            ],
+            'G': [
+                { palavra: 'Gato 🐱', som: 'Gato' },
+                { palavra: 'Girafa 🦒', som: 'Girafa' },
+                { palavra: 'Gelado 🍦', som: 'Gelado' }
+            ],
+            'H': [
+                { palavra: 'Hipopótamo 🦛', som: 'Hipopótamo' },
+                { palavra: 'Hambúrguer 🍔', som: 'Hambúrguer' },
+                { palavra: 'Helicóptero 🚁', som: 'Helicóptero' }
+            ],
+            'I': [
+                { palavra: 'Igreja ⛪', som: 'Igreja' },
+                { palavra: 'Íman 🧲', som: 'Íman' },
+                { palavra: 'Índio 🏹', som: 'Índio' }
+            ],
+            'J': [
+                { palavra: 'Jacaré 🐊', som: 'Jacaré' },
+                { palavra: 'Janela 🪟', som: 'Janela' },
+                { palavra: 'Jarro 🫖', som: 'Jarro' }
+            ],
+            'K': [
+                { palavra: 'Kiwi 🥝', som: 'Kiwi' },
+                { palavra: 'Kung Fu 🥋', som: 'Kung Fu' },
+                { palavra: 'Kart 🏎️', som: 'Kart' }
+            ],
+            'L': [
+                { palavra: 'Leão 🦁', som: 'Leão' },
+                { palavra: 'Livro 📖', som: 'Livro' },
+                { palavra: 'Lua 🌙', som: 'Lua' }
+            ],
+            'M': [
+                { palavra: 'Macaco 🐵', som: 'Macaco' },
+                { palavra: 'Mesa 🪑', som: 'Mesa' },
+                { palavra: 'Mãe 👩‍👦', som: 'Mãe' }
+            ],
+            'N': [
+                { palavra: 'Navio 🚢', som: 'Navio' },
+                { palavra: 'Ninho 🪹', som: 'Ninho' },
+                { palavra: 'Nuvem ☁️', som: 'Nuvem' }
+            ],
+            'O': [
+                { palavra: 'Ovo 🥚', som: 'Ovo' },
+                { palavra: 'Olho 👁️', som: 'Olho' },
+                { palavra: 'Ovelha 🐑', som: 'Ovelha' }
+            ],
+            'P': [
+                { palavra: 'Pato 🦆', som: 'Pato' },
+                { palavra: 'Peixe 🐟', som: 'Peixe' },
+                { palavra: 'Pipa 🪁', som: 'Pipa' }
+            ],
+            'Q': [
+                { palavra: 'Queijo 🧀', som: 'Queijo' },
+                { palavra: 'Quarto 🛏️', som: 'Quarto' },
+                { palavra: 'Quati 🦝', som: 'Quati' }
+            ],
+            'R': [
+                { palavra: 'Rato 🐭', som: 'Rato' },
+                { palavra: 'Relógio ⌚', som: 'Relógio' },
+                { palavra: 'Rei 👑', som: 'Rei' }
+            ],
+            'S': [
+                { palavra: 'Sapo 🐸', som: 'Sapo' },
+                { palavra: 'Sol ☀️', som: 'Sol' },
+                { palavra: 'Sino 🔔', som: 'Sino' }
+            ],
+            'T': [
+                { palavra: 'Tartaruga 🐢', som: 'Tartaruga' },
+                { palavra: 'Comboio 🚂', som: 'Comboio' },
+                { palavra: 'Telefone ☎️', som: 'Telefone' }
+            ],
+            'U': [
+                { palavra: 'Uva 🍇', som: 'Uva' },
+                { palavra: 'Urso 🐻', som: 'Urso' },
+                { palavra: 'Unha 💅', som: 'Unha' }
+            ],
+            'V': [
+                { palavra: 'Vaca 🐮', som: 'Vaca' },
+                { palavra: 'Vela 🕯️', som: 'Vela' },
+                { palavra: 'Vento 💨', som: 'Vento' }
+            ],
+            'W': [
+                { palavra: 'Waterpolo 🤽', som: 'Waterpolo' },
+                { palavra: 'Wi-Fi 📶', som: 'UaifaI' },
+                { palavra: 'Waffle 🧇', som: 'Uáfol' }
+            ],
+            'X': [
+                { palavra: 'Xícara ☕', som: 'Xícara' },
+                { palavra: 'Xailes 🧣', som: 'Xailes' },
+                { palavra: 'Xilofone 🪘', som: 'Xilofone' }
+            ],
+            'Y': [
+                { palavra: 'Yoga 🧘', som: 'Ioga' },
+                { palavra: 'Yakitori 🍢', som: 'Iaquitori' },
+                { palavra: 'YouTube 📺', som: 'Iutub' }
+            ],
+            'Z': [
+                { palavra: 'Zebra 🦓', som: 'Zebra' },
+                { filename: 'Zero 0️⃣', palavra: 'Zero 0️⃣', som: 'Zero' },
+                { palavra: 'Zangão 🐝', som: 'Zangão' }
+            ]
+        };
+
+        // Estado atual do jogo
+        let currentAbcLevel = 1;
+        let currentNumLevel = 1;
+        let correctAnswer = 0;
+        let score = 0;
+        const objetosContagem = ['🍎', '⭐️', '🎈', '🐠', '🚗', '🍬', '🐝', '🦕', '⚽️'];
+
+        // Sintetizador de Voz
+        function falar(texto) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const fala = new SpeechSynthesisUtterance(texto);
+                fala.lang = 'pt-PT';
+                fala.rate = 0.85; 
+                window.speechSynthesis.speak(fala);
+            }
+        }
+
+        // Troca de Separadores Principais
+        function switchTab(section) {
+            document.querySelectorAll('.game-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById('section-' + section).classList.add('active');
+            document.getElementById('btn-' + section).classList.add('active');
+
+            if(section === 'abc') {
+                renderAbcGrid();
+            } else if(section === 'numeros') {
+                initGameNumeros();
+            }
+        }
+
+        // Mostra Vogal (Escolhe uma das 3 palavras aleatoriamente ao clicar)
+        function showVowel(letra) {
+            const opcoes = dicionarioLetras[letra];
+            const info = opcoes[Math.floor(Math.random() * opcoes.length)];
+            
+            document.getElementById('vowel-char').innerText = letra;
+            document.getElementById('vowel-word').innerText = info.palavra;
+            falar(letra + " de " + info.som);
+        }
+
+        // Mostra Letra do ABC (Escolhe uma das 3 palavras aleatoriamente ao clicar)
+        function showAbc(letra) {
+            const opcoes = dicionarioLetras[letra];
+            const info = opcoes[Math.floor(Math.random() * opcoes.length)];
+            
+            document.getElementById('abc-char').innerText = letra;
+            document.getElementById('abc-word').innerText = info.palavra;
+            falar(letra + " de " + info.som);
+        }
+
+        // Controlar e Renderizar os Níveis do Abecedário
+        function setAbcLevel(lvl) {
+            currentAbcLevel = lvl;
+            document.querySelectorAll('[id^="lvl-abc-"]').forEach(b => b.classList.remove('active'));
+            document.getElementById('lvl-abc-' + lvl).classList.add('active');
+            renderAbcGrid();
+        }
+
+        function renderAbcGrid() {
+            const abcContainer = document.getElementById('abc-container');
+            abcContainer.innerHTML = '';
+            
+            const todasLetras = Object.keys(dicionarioLetras);
+            let letrasFiltradas = [];
+
+            // Divisão das letras por níveis
+            if(currentAbcLevel === 1) {
+                letrasFiltradas = todasLetras.slice(0, 8); // A até H
+            } else if(currentAbcLevel === 2) {
+                letrasFiltradas = todasLetras.slice(8, 17); // I até Q
+            } else {
+                letrasFiltradas = todasLetras.slice(17); // R até Z
+            }
+
+            letrasFiltradas.forEach(letra => {
+                const btn = document.createElement('button');
+                btn.className = 'letter-btn';
+                btn.innerText = letra;
+                btn.onclick = () => showAbc(letra);
+                abcContainer.appendChild(btn);
+            });
+        }
+
+        // Controlar Níveis dos Números
+        function setNumLevel(lvl) {
+            currentNumLevel = lvl;
+            document.querySelectorAll('[id^="lvl-num-"]').forEach(b => b.classList.remove('active'));
+            document.getElementById('lvl-num-' + lvl).classList.add('active');
+            initGameNumeros();
+        }
+
+        // Jogo Dinâmico de Contar com base no Nível Ativo
+        function initGameNumeros() {
+            let min = 1, max = 10;
+
+            if(currentNumLevel === 2) {
+                min = 11; max = 50;
+            } else if(currentNumLevel === 3) {
+                min = 51; max = 100;
+            }
+
+            // Define o número correto com base no intervalo do nível
+            const numObjetos = Math.floor(Math.random() * (max - min + 1)) + min;
+            correctAnswer = numObjetos;
+            
+            const emojiEscolhido = objetosContagem[Math.floor(Math.random() * objetosContagem.length)];
+            
+            // Desenhar os emojis estruturados em blocos de 10
+            let displayHTML = '';
+            for (let i = 1; i <= numObjetos; i++) {
+                displayHTML += emojiEscolhido;
+                if (i % 10 === 0) displayHTML += '<br>'; 
+            }
+            
+            document.getElementById('objects-zone').innerHTML = displayHTML;
+            
+            // Gerar as opções de resposta inteligentes
+            let opcoes = [correctAnswer];
+            while(opcoes.length < 3) {
+                // Margem de erro próxima para ser desafiante
+                let variacao = Math.floor(Math.random() * 7) - 3; 
+                let randomOpt = correctAnswer + variacao;
+                
+                if(randomOpt >= min && randomOpt <= max && !opcoes.includes(randomOpt)) {
+                    opcoes.push(randomOpt);
+                }
+            }
+            
+            // Se falhar opções válidas no intervalo, gerar alternativas genéricas estruturadas
+            while(opcoes.length < 3) {
+                let randomOpt = Math.floor(Math.random() * (max - min + 1)) + min;
+                if(!opcoes.includes(randomOpt)) opcoes.push(randomOpt);
+            }
+            
+            // Baralhar as alternativas
+            opcoes.sort(() => Math.random() - 0.5);
+
+            const optionsZone = document.getElementById('options-zone');
+            optionsZone.innerHTML = '';
+            opcoes.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(opt);
+                optionsZone.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(chosen) {
+            if(chosen === correctAnswer) {
+                score++;
+                document.getElementById('score-val').innerText = score;
+                falar("Muito bem! É o número " + correctAnswer);
+                initGameNumeros();
+            } else {
+                falar("Quase! Conta outra vez com atenção.");
+            }
+        }
+
+        // Visualização do IBAN
+        function toggleSupport() {
+            const box = document.getElementById('support-box');
+            if (box.style.display === 'block') {
+                box.style.display = 'none';
+            } else {
+                box.style.display = 'block';
+                box.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Inicialização padrão
+        window.onload = () => {
+            showVowel('A');
+            renderAbcGrid();
+            showAbc('A');
+        };
+    </script>
+</body>
+</html>
