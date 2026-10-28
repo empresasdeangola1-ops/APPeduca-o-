@@ -1,664 +1,1650 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-AO">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Jogo Educativo</title>
-    <style>
-        :root {
-            --primary: #ff6b6b;
-            --secondary: #4ecdc4;
-            --accent: #ffe66d;
-            --bg: #f7f9fc;
-            --text: #2f3e46;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SITE INDEPENDENTE DE EXERCÍCIOS PARA PROVA ESCRITA DO MININT ANGOLA</title>
+<style>
+  :root {
+    --azul-escuro: #0b2a5b;
+    --azul: #1565c0;
+    --azul-claro: #e3f0ff;
+    --azul-medio: #90caf9;
+    --branco: #ffffff;
+    --texto: #1a2b45;
+    --verde: #2e7d32;
+    --vermelho: #c62828;
+    --dourado: #b8860b;
+    --laranja: #e65100;
+    --sombra: 0 6px 18px rgba(11, 42, 91, 0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: linear-gradient(160deg, #eaf4ff 0%, #d2e8ff 100%);
+    color: var(--texto);
+    line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(135deg, var(--azul-escuro), var(--azul));
+    color: var(--branco);
+    padding: calc(env(safe-area-inset-top, 0px) + 20px) 16px 20px;
+    text-align: center;
+    box-shadow: var(--sombra);
+  }
+  header h1 { font-size: clamp(1.05rem, 2.6vw, 1.6rem); letter-spacing: 0.5px; }
+  header p { opacity: 0.9; font-size: 0.9rem; margin-top: 6px; }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 16px calc(env(safe-area-inset-bottom, 0px) + 100px);
+  }
+  .oculto { display: none !important; }
 
-        body {
-            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Ubuntu', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
+  .cartoes { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 10px; }
+  @media (min-width: 700px) { .cartoes { grid-template-columns: 1fr 1fr; } }
+  .cartao {
+    background: var(--branco); border-radius: 16px; padding: 24px 20px;
+    box-shadow: var(--sombra); border-top: 6px solid var(--azul);
+    cursor: pointer; transition: transform 0.15s ease; text-align: left;
+    border-left: none; border-right: none; border-bottom: none;
+    font: inherit; color: inherit; width: 100%;
+  }
+  .cartao:hover, .cartao:focus-visible { transform: translateY(-3px); outline: none; }
+  .cartao .icone { font-size: 2rem; }
+  .cartao h2 { color: var(--azul-escuro); font-size: 1.2rem; margin: 8px 0 4px; }
+  .cartao p { font-size: 0.92rem; color: #4a5d78; }
+  .cartao .badge {
+    display: inline-block; margin-top: 12px;
+    background: var(--azul-claro); color: var(--azul-escuro);
+    padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 600;
+  }
 
-        h1 {
-            color: #ff4a5a;
-            font-size: 2.5rem;
-            text-shadow: 2px 2px #fff;
-            margin-bottom: 10px;
-            text-align: center;
-        }
+  .painel { background: var(--branco); border-radius: 16px; padding: 22px 18px; box-shadow: var(--sombra); }
+  .topo-quiz { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .btn-voltar { background: none; border: 2px solid var(--azul); color: var(--azul); padding: 6px 14px; border-radius: 8px; cursor: pointer; font: inherit; font-weight: 600; }
+  .btn-voltar:hover { background: var(--azul-claro); }
+  .contador { font-weight: 700; color: var(--azul-escuro); }
+  .barra { height: 10px; background: var(--azul-claro); border-radius: 999px; overflow: hidden; margin-bottom: 18px; }
+  .barra-preenchida { height: 100%; width: 0%; background: linear-gradient(90deg, var(--azul), var(--azul-escuro)); transition: width 0.3s ease; }
+  .pergunta { font-size: clamp(1.02rem, 2.4vw, 1.2rem); font-weight: 600; color: var(--azul-escuro); margin-bottom: 16px; }
+  .opcoes { display: grid; gap: 10px; }
+  .opcao {
+    background: var(--branco); border: 2px solid var(--azul-medio);
+    border-radius: 12px; padding: 13px 14px; text-align: left;
+    font: inherit; color: var(--texto); cursor: pointer;
+    transition: background 0.15s, border-color 0.15s; width: 100%;
+  }
+  .opcao:hover:not(:disabled) { background: var(--azul-claro); border-color: var(--azul); }
+  .opcao:disabled { cursor: default; }
+  .opcao.correta { background: #e8f5e9; border-color: var(--verde); color: var(--verde); font-weight: 600; }
+  .opcao.errada { background: #ffebee; border-color: var(--vermelho); color: var(--vermelho); }
+  .explicacao { margin-top: 16px; padding: 12px 14px; border-radius: 10px; background: var(--azul-claro); font-size: 0.94rem; }
+  .explicacao strong { color: var(--azul-escuro); }
+  .acoes { margin-top: 18px; display: flex; justify-content: flex-end; }
+  .btn-principal {
+    background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
+    color: var(--branco); border: none; padding: 12px 22px;
+    border-radius: 10px; font: inherit; font-weight: 700; cursor: pointer;
+    box-shadow: var(--sombra);
+  }
+  .btn-principal:hover { filter: brightness(1.08); }
+  .btn-principal:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
-        /* Menu de Navegação */
-        .menu {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
+  .resultado { text-align: center; padding: 10px 0; }
+  .resultado .pontuacao { font-size: clamp(2.4rem, 8vw, 3.6rem); font-weight: 800; color: var(--azul-escuro); }
+  .resultado .mensagem { font-size: 1.1rem; margin: 10px 0 22px; }
+  .resultado .acoes-finais { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-secundario {
+    background: var(--branco); color: var(--azul-escuro);
+    border: 2px solid var(--azul); padding: 11px 20px; border-radius: 10px;
+    font: inherit; font-weight: 700; cursor: pointer;
+  }
+  .btn-secundario:hover { background: var(--azul-claro); }
 
-        .menu-btn {
-            background-color: white;
-            border: 3px solid var(--text);
-            padding: 12px 24px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 6px 0 var(--text);
-            transition: all 0.1s ease;
-        }
+  footer { text-align: center; font-size: 0.8rem; color: #53677f; padding: 0 16px 24px; }
 
-        .menu-btn:active {
-            transform: translateY(6px);
-            box-shadow: 0 0px 0 var(--text);
-        }
+  .campo { display: grid; gap: 6px; margin-bottom: 14px; }
+  .campo label { font-weight: 600; color: var(--azul-escuro); font-size: 0.92rem; }
+  .campo input {
+    font: inherit; padding: 11px 12px; border: 2px solid var(--azul-medio);
+    border-radius: 10px; color: var(--texto); background: var(--branco);
+  }
+  .campo input:focus { outline: none; border-color: var(--azul); }
+  .auth h2 { color: var(--azul-escuro); font-size: 1.3rem; margin-bottom: 4px; }
+  .auth .sub { font-size: 0.92rem; color: #4a5d78; margin-bottom: 18px; }
+  .auth .acoes { justify-content: stretch; margin-top: 4px; }
+  .auth .btn-principal { width: 100%; }
+  .auth-troca { margin-top: 14px; text-align: center; }
+  .erro { color: var(--vermelho); background: #ffebee; padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 14px; }
+  .btn-link { background: none; border: none; color: var(--azul); font: inherit; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 4px; }
+  .sessao {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    flex-wrap: wrap; background: var(--branco); padding: 10px 14px; border-radius: 12px;
+    box-shadow: var(--sombra); margin-bottom: 14px; font-size: 0.92rem;
+  }
+  .controlos-voz { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-voz {
+    background: var(--azul-claro); color: var(--azul-escuro); border: none;
+    padding: 6px 12px; border-radius: 8px; cursor: pointer; font: inherit;
+    font-size: 0.85rem; font-weight: 600;
+  }
+  .btn-voz:hover { background: var(--azul-medio); }
+  .btn-voz[aria-pressed="false"] { opacity: 0.7; }
 
-        #btn-vogais { border-color: #ff6b6b; color: #ff6b6b; }
-        #btn-abc { border-color: #4ecdc4; color: #4ecdc4; }
-        #btn-numeros { border-color: #ff9f43; color: #ff9f43; }
+  .conta { text-align: center; }
+  .conta h2 { color: var(--azul-escuro); font-size: 1.4rem; margin-bottom: 6px; }
+  .conta .sub { font-size: 0.95rem; color: #4a5d78; }
+  .cartoes-conta { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; }
+  @media (min-width: 700px) { .cartoes-conta { grid-template-columns: 1fr 1fr; } }
+  .acoes-conta { text-align: center; margin-top: 18px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 
-        .menu-btn.active {
-            background-color: #f0f0f0;
-            transform: translateY(3px);
-            box-shadow: 0 3px 0 var(--text);
-        }
+  .lista { list-style: none; margin-top: 12px; display: grid; gap: 10px; }
+  .item-lista {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    flex-wrap: wrap; background: var(--azul-claro); padding: 10px 12px;
+    border-radius: 10px; font-size: 0.92rem;
+  }
+  .btn-pequeno { padding: 8px 12px; font-size: 0.85rem; box-shadow: none; }
+  .painel-espaco { margin-top: 16px; }
+  .chat-mensagens {
+    height: 55vh; min-height: 260px; overflow-y: auto; display: flex; flex-direction: column;
+    gap: 10px; padding: 10px; background: var(--azul-claro); border-radius: 12px; margin-bottom: 12px;
+  }
+  .chat-vazio { text-align: center; color: #4a5d78; margin: auto; }
+  .msg { max-width: 80%; padding: 10px 12px; border-radius: 12px; background: var(--branco); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .msg-minha { align-self: flex-end; background: var(--azul-medio); }
+  .msg-outra { align-self: flex-start; }
+  .msg-texto { white-space: pre-wrap; word-break: break-word; }
+  .msg-meta { font-size: 0.72rem; color: #4a5d78; margin-top: 4px; }
+  .msg-acoes { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  .btn-msg { background: none; border: none; color: var(--vermelho); font: inherit; font-size: 0.75rem; cursor: pointer; text-decoration: underline; padding: 0; }
+  .chat-enviar { display: flex; gap: 10px; align-items: flex-end; }
+  .chat-enviar textarea {
+    flex: 1; font: inherit; padding: 10px; border: 2px solid var(--azul-medio);
+    border-radius: 10px; resize: vertical; color: var(--texto); background: var(--branco);
+  }
+  .chat-enviar textarea:focus { outline: none; border-color: var(--azul); }
+  .chat-enviar .btn-principal { white-space: nowrap; }
 
-        /* Submenu de Níveis */
-        .level-selector {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
+  .badge-n { color: var(--vermelho); font-weight: 700; margin-left: 4px; }
 
-        .level-btn {
-            background-color: #fff;
-            border: 2px solid var(--text);
-            padding: 6px 15px;
-            font-size: 0.95rem;
-            font-weight: bold;
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 3px 0 var(--text);
-            transition: all 0.1s ease;
-        }
+  .chat-flutuante {
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
+    left: 22px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
+    color: var(--branco);
+    border: none;
+    font-size: 1.7rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(11, 42, 91, 0.45);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s ease, filter 0.15s ease;
+    animation: pulsar 2.4s ease-in-out infinite;
+  }
+  .chat-flutuante:hover { transform: scale(1.08); filter: brightness(1.1); }
+  .chat-flutuante:active { transform: scale(0.96); }
+  .chat-flutuante .badge-flutuante {
+    position: absolute;
+    top: -4px; right: -4px;
+    background: var(--vermelho);
+    color: var(--branco);
+    border-radius: 999px;
+    min-width: 22px; height: 22px;
+    font-size: 0.72rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 6px;
+    border: 2px solid var(--branco);
+  }
+  @keyframes pulsar {
+    0%, 100% { box-shadow: 0 6px 20px rgba(11, 42, 91, 0.45); }
+    50% { box-shadow: 0 6px 20px rgba(21, 101, 192, 0.75), 0 0 0 8px rgba(21, 101, 192, 0.15); }
+  }
 
-        .level-btn.active {
-            background-color: var(--text);
-            color: white;
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 var(--text);
-        }
+  .selo-premium {
+    display: inline-block;
+    background: #fff8e1;
+    color: var(--dourado);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-top: 8px;
+    border: 1px solid #f9d77e;
+  }
+  .selo-gratis {
+    display: inline-block;
+    background: var(--azul-claro);
+    color: var(--azul-escuro);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+  .selo-pendente {
+    display: inline-block;
+    background: #fff3e0;
+    color: var(--laranja);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-top: 8px;
+    border: 1px solid #ffcc80;
+  }
+  .premium-cta {
+    border: 2px solid #f9d77e;
+    background: linear-gradient(135deg, #fffdf5, #fff5d6);
+    text-align: left;
+  }
+  .premium-cta h3 {
+    color: var(--azul-escuro);
+    margin-bottom: 8px;
+    font-size: 1.15rem;
+    text-align: center;
+  }
+  .premium-cta p { font-size: 0.92rem; color: #4a5d78; margin-bottom: 6px; }
 
-        /* Áreas de Jogo */
-        .game-section {
-            display: none;
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            max-width: 650px;
-            width: 100%;
-            text-align: center;
-            border: 4px solid #e0e0e0;
-        }
+  .pagamento-caixa {
+    background: var(--branco);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 14px 0;
+    border: 2px dashed #f9d77e;
+  }
+  .pagamento-caixa .linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed #e0e0e0;
+    font-size: 0.94rem;
+  }
+  .pagamento-caixa .linha:last-child { border-bottom: none; }
+  .pagamento-caixa .linha strong { color: var(--azul-escuro); }
+  .pagamento-caixa .valor-destaque {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--azul-escuro);
+  }
+  .pagamento-caixa .ref-destaque {
+    font-family: ui-monospace, "Courier New", monospace;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--azul-escuro);
+    background: var(--azul-claro);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .passos-atm {
+    margin-top: 14px;
+    background: #eef6ff;
+    border-left: 5px solid var(--azul);
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: #33475b;
+  }
+  .passos-atm h4 {
+    color: var(--azul-escuro);
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+  .passos-atm ol { padding-left: 20px; }
+  .passos-atm li { margin-bottom: 4px; }
+  .passos-atm .destaque {
+    background: #fff8e1;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    color: var(--azul-escuro);
+  }
+  .premium-ativo {
+    text-align: center;
+    background: #e8f5e9;
+    border-left: 5px solid var(--verde);
+    color: var(--verde);
+    font-weight: 600;
+    padding: 14px;
+    border-radius: 10px;
+    box-shadow: var(--sombra);
+    margin-top: 16px;
+  }
+  .premium-pendente {
+    margin-top: 16px;
+    background: #fff8e1;
+    border-left: 5px solid #ffa726;
+    color: var(--laranja);
+    font-weight: 600;
+    padding: 14px;
+    border-radius: 10px;
+    box-shadow: var(--sombra);
+    font-size: 0.92rem;
+  }
+  .premium-pendente small {
+    display: block;
+    margin-top: 6px;
+    font-weight: 400;
+    color: #4a5d78;
+  }
+  .resultado-upsell {
+    margin-top: 18px;
+    background: linear-gradient(135deg, #fffdf5, #fff5d6);
+    border: 2px dashed #f9d77e;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .resultado-upsell strong { color: var(--azul-escuro); }
 
-        .game-section.active {
-            display: block;
-        }
-
-        /* Estilo das Vogais e ABC */
-        .card-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .letter-btn {
-            background-color: var(--accent);
-            border: 3px solid var(--text);
-            font-size: 1.8rem;
-            font-weight: bold;
-            width: 60px;
-            height: 60px;
-            border-radius: 15px;
-            cursor: pointer;
-            box-shadow: 0 4px 0 var(--text);
-        }
-
-        .letter-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 0px 0 var(--text);
-        }
-
-        .display-card {
-            background: #fff3cd;
-            border: 3px dashed #ffc107;
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 20px;
-        }
-
-        .big-char {
-            font-size: 5rem;
-            margin: 0;
-            color: #ff6b6b;
-            line-height: 1;
-        }
-
-        .word-example {
-            font-size: 2rem;
-            margin: 15px 0 0 0;
-            font-weight: bold;
-            color: #2f3e46;
-        }
-
-        /* Estilo do Abecedário */
-        .abc-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
-            gap: 10px;
-            max-height: 250px;
-            overflow-y: auto;
-            padding: 10px;
-            background: #f0fbfc;
-            border-radius: 12px;
-            border: 2px solid #4ecdc4;
-        }
-
-        /* Estilo dos Números */
-        .count-zone {
-            font-size: 1.8rem;
-            letter-spacing: 3px;
-            margin: 15px 0;
-            min-height: 100px;
-            max-height: 200px;
-            overflow-y: auto;
-            line-height: 1.6;
-            word-break: break-all;
-            padding: 10px;
-            background: white;
-            border-radius: 10px;
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .option-btn {
-            background-color: #a29bfe;
-            color: white;
-            border: 3px solid var(--text);
-            font-size: 1.8rem;
-            font-weight: bold;
-            padding: 12px;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 5px 0 var(--text);
-        }
-
-        .option-btn:active {
-            transform: translateY(5px);
-            box-shadow: 0 0px 0 var(--text);
-        }
-
-        .score {
-            font-size: 1.3rem;
-            color: #2ec043;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        /* Secção de Apoio / Donativos */
-        .donation-container {
-            margin-top: 50px;
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-        }
-
-        .btn-support {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-            color: white;
-            border: 3px solid #1e7e43;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 5px 0 #1e7e43;
-            width: 100%;
-            transition: all 0.1s ease;
-        }
-
-        .btn-support:active {
-            transform: translateY(5px);
-            box-shadow: 0 0px 0 #1e7e43;
-        }
-
-        .support-info {
-            display: none;
-            margin-top: 15px;
-            background-color: #ebfef2;
-            border: 2px dashed #27ae60;
-            padding: 20px;
-            border-radius: 15px;
-            color: #1e7e43;
-            font-size: 1.1rem;
-            line-height: 1.5;
-            animation: popIn 0.3s ease;
-        }
-
-        @keyframes popIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-    </style>
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 42, 91, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.18s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal-caixa {
+    background: var(--branco);
+    border-radius: 16px;
+    padding: 26px 22px 22px;
+    max-width: 440px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    text-align: center;
+    animation: slideUp 0.22s ease;
+    border-top: 6px solid var(--azul);
+  }
+  @keyframes slideUp {
+    from { transform: translateY(24px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .modal-caixa p {
+    font-size: 1.02rem;
+    color: var(--texto);
+    margin-bottom: 22px;
+    line-height: 1.55;
+    text-align: left;
+  }
+  .modal-caixa .btn-principal { min-width: 130px; }
+</style>
 </head>
 <body>
 
-    <h1>🎈 Super Jogo Educativo 🎈</h1>
+<header>
+  <h1>SITE INDEPENDENTE DE EXERCÍCIOS PARA PROVA ESCRITA DO MININT ANGOLA</h1>
+  <p>Pratique, teste os seus conhecimentos e melhore a sua pontuação</p>
+</header>
+
+<main>
+
+  <section id="ecra-inicio">
+    <div class="sessao oculto" id="sessao">
+      <span id="sessao-nome"></span>
+      <div class="controlos-voz">
+        <button class="btn-link" onclick="mostrarConta()">Minha conta</button>
+        <button class="btn-link" onclick="terminarSessao()">Terminar sessão</button>
+      </div>
+    </div>
+    <div class="cartoes">
+      <button class="cartao" onclick="iniciarQuiz('policia')">
+        <div class="icone">👮</div>
+        <h2>Quiz: Perguntas da Polícia</h2>
+        <p>Direitos, deveres, princípios de atuação policial e ética profissional.</p>
+        <span class="badge" id="badge-policia"></span>
+      </button>
+
+      <button class="cartao" onclick="iniciarQuiz('cultura')">
+        <div class="icone">🇦🇴</div>
+        <h2>Quiz: Cultura Geral de Angola</h2>
+        <p>História, geografia, símbolos, cultura e curiosidades sobre Angola.</p>
+        <span class="badge" id="badge-cultura"></span>
+      </button>
+    </div>
+  </section>
+
+  <section id="ecra-quiz" class="oculto">
+    <div class="painel">
+      <div class="topo-quiz">
+        <button class="btn-voltar" onclick="voltarConta()">← Conta</button>
+        <span class="contador" id="contador"></span>
+        <div class="controlos-voz">
+          <button class="btn-voz" id="btn-ouvir" onclick="ouvirPergunta()">🔊 Ouvir</button>
+          <button class="btn-voz" id="btn-voz" aria-pressed="true" onclick="alternarVoz()">Voz ligada</button>
+        </div>
+      </div>
+      <div class="barra"><div class="barra-preenchida" id="barra"></div></div>
+      <p class="pergunta" id="pergunta"></p>
+      <div class="opcoes" id="opcoes"></div>
+      <div class="explicacao oculto" id="explicacao"></div>
+      <div class="acoes">
+        <button class="btn-principal" id="btn-seguinte" onclick="proximaPergunta()" disabled>Seguinte →</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="ecra-resultado" class="oculto">
+    <div class="painel resultado">
+      <p>A sua pontuação:</p>
+      <div class="pontuacao" id="pontuacao"></div>
+      <p class="mensagem" id="mensagem"></p>
+      <div class="acoes-finais">
+        <button class="btn-principal" id="btn-repetir">Repetir quiz</button>
+        <button class="btn-secundario" onclick="confirmarOutroQuiz()">Escolher outro quiz</button>
+      </div>
+
+      <div class="resultado-upsell oculto" id="resultado-upsell">
+        <p><strong>Está na versão gratuita (8 perguntas).</strong></p>
+        <p style="margin-top:6px;font-size:0.9rem;color:#4a5d78;">
+          Por apenas <strong>1000 Kz</strong> (pagamento único) desbloqueie <strong>todas as 154 perguntas</strong>
+          (71 de polícia + 83 de cultura geral), com aprovação da administração.
+        </p>
+        <button class="btn-principal" style="margin-top:12px;" onclick="irParaPagamento()">🔓 Desbloquear agora</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="ecra-auth" class="oculto">
+    <div class="painel auth">
+      <h2 id="auth-titulo">Criar conta</h2>
+      <p class="sub" id="auth-sub">Registe-se para poder exercitar.</p>
+      <p class="erro oculto" id="auth-erro"></p>
+      <div class="campo" id="campo-nome">
+        <label for="auth-nome">Nome</label>
+        <input id="auth-nome" type="text" autocomplete="name">
+      </div>
+      <div class="campo">
+        <label for="auth-numero">Número angolano (telemóvel)</label>
+        <input id="auth-numero" type="tel" inputmode="numeric" placeholder="9XX XXX XXX" autocomplete="tel">
+      </div>
+      <div class="campo">
+        <label for="auth-senha">Senha</label>
+        <input id="auth-senha" type="password">
+      </div>
+      <div class="acoes">
+        <button class="btn-principal" id="auth-btn" onclick="submeterAuth()">Registar e continuar</button>
+      </div>
+      <p class="auth-troca"><button class="btn-link" id="auth-troca" onclick="alternarAuth()">Já tenho conta — entrar</button></p>
+      <p class="auth-troca"><button class="btn-link" onclick="voltarInicio()">← Voltar</button></p>
+    </div>
+  </section>
+
+  <section id="ecra-conta" class="oculto">
+    <div class="painel conta">
+      <h2 id="conta-titulo">Olá!</h2>
+      <p class="sub" id="conta-dados"></p>
+      <div id="conta-premium-status"></div>
+      <p class="sub" style="margin-top: 12px;">Escolha o quiz que quer exercitar:</p>
+    </div>
+
+    <div class="cartoes-conta">
+      <button class="cartao" onclick="iniciarQuiz('policia')">
+        <div class="icone">👮</div>
+        <h2>Quiz: Perguntas da Polícia</h2>
+        <p>Direitos, deveres, princípios de atuação policial e ética profissional.</p>
+        <span class="badge" id="badge-conta-policia"></span>
+      </button>
+      <button class="cartao" onclick="iniciarQuiz('cultura')">
+        <div class="icone">🇦🇴</div>
+        <h2>Quiz: Cultura Geral de Angola</h2>
+        <p>História, geografia, símbolos, cultura e curiosidades sobre Angola.</p>
+        <span class="badge" id="badge-conta-cultura"></span>
+      </button>
+    </div>
+
+    <div id="premium-cta" class="painel painel-espaco premium-cta oculto">
+      <h3>🔓 Desbloqueie todas as 154 perguntas</h3>
+      <p style="text-align:center;">Está a usar a <strong>versão gratuita</strong> com 8 perguntas por quiz.<br>
+      Acesso completo: <strong>71 de polícia</strong> + <strong>83 de cultura geral</strong>.</p>
+
+      <div class="pagamento-caixa">
+        <div class="linha">
+          <span>Entidade</span>
+          <strong>PayPay <span class="ref-destaque">10116</span></strong>
+        </div>
+        <div class="linha">
+          <span>Referência</span>
+          <strong><span class="ref-destaque">936188265</span></strong>
+        </div>
+        <div class="linha">
+          <span>Valor</span>
+          <span class="valor-destaque">1000 Kz</span>
+        </div>
+        <div class="linha">
+          <span>Pagamento único</span>
+          <strong style="color:var(--verde);">Acesso vitalício</strong>
+        </div>
+      </div>
+
+      <div class="passos-atm">
+        <h4>📱 Como pagar no ATM Multicaixa:</h4>
+        <ol>
+          <li>No ATM, clique em <span class="destaque">Pagamento</span>.</li>
+          <li>A seguir clique em <span class="destaque">Pagamento de Serviços</span>.</li>
+          <li>A seguir clique em <span class="destaque">SIM</span> para receber o talão.</li>
+          <li>A seguir clique em <span class="destaque">Pagamento por Referência</span>.</li>
+          <li>Digite a entidade: <span class="destaque">10116</span> e clique em <span class="destaque">CONFIRMAR</span>.</li>
+          <li>Digite a referência: <span class="destaque">936188265</span> e clique em <span class="destaque">CONFIRMAR</span>.</li>
+          <li>Digite o valor: <span class="destaque">1000 Kz</span> e clique em <span class="destaque">CONFIRMAR</span>.</li>
+          <li>Guarde o <strong>talão de comprovativo</strong>.</li>
+        </ol>
+      </div>
+
+      <div class="passos-atm" style="margin-top:10px; background:#e8f5e9; border-left-color:var(--verde);">
+        <h4>📱 Pagamento no aplicativo Express do telemóvel:</h4>
+        <p style="font-size:0.9rem; margin:0;">Também são seguidos os mesmos procedimentos
+        (entidade PayPay <strong>10116</strong>, referência <strong>936188265</strong>, valor <strong>1000 Kz</strong>).</p>
+      </div>
+
+      <p style="margin-top:14px; text-align:center; font-size:0.88rem;">
+        Depois de pagar, clique no botão abaixo. Será redirecionado para o nosso email
+        (<strong>netn6436@gmail.com</strong>) com os seus dados já preenchidos —
+        anexe o <strong>talão de comprovativo</strong> e envie.
+      </p>
+
+      <div style="text-align:center; margin-top:14px;">
+        <button class="btn-principal" onclick="solicitarDesbloqueio()">📧 Solicitar Desbloqueio</button>
+      </div>
+      <p style="margin-top:12px; font-size:0.8rem; text-align:center; color:#4a5d78;">
+        O acesso será desbloqueado <strong>após aprovação da administração</strong> (confirmação do comprovativo).
+      </p>
+    </div>
+
+    <div id="premium-pendente" class="premium-pendente oculto">
+      ⏳ Pedido de desbloqueio registado. A aguardar aprovação da administração.
+      <small>Certifique-se de que enviou o talão de comprovativo para <strong>netn6436@gmail.com</strong>.</small>
+      <div style="margin-top:12px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+        <button class="btn-secundario btn-pequeno" onclick="reabrirEmail()">📧 Reenviar email</button>
+        <button class="btn-link" onclick="abrirChatAdmin()">💬 Falar com a administração</button>
+      </div>
+    </div>
+
+    <div id="premium-ativo" class="premium-ativo oculto">
+      ✓ Acesso completo ativo — todas as 154 perguntas estão disponíveis.
+    </div>
+
+    <div class="acoes-conta">
+      <button class="btn-secundario" onclick="voltarInicio()">Ir para o início</button>
+      <button class="btn-link" onclick="terminarSessao()">Terminar sessão</button>
+    </div>
+  </section>
+
+  <section id="ecra-admin" class="oculto">
+    <div class="painel conta">
+      <h2>Painel administrativo</h2>
+      <p class="sub">Utilizadores registados: <strong id="admin-total">0</strong></p>
+      <p class="sub" style="margin-top:8px;font-size:0.85rem;">
+        Aprove o pagamento (1000 Kz) após confirmar o comprovativo recebido por email/chat.
+      </p>
+    </div>
+    <div class="painel painel-espaco">
+      <h3 class="conta">Utilizadores</h3>
+      <ul class="lista" id="admin-lista"></ul>
+    </div>
+    <div class="acoes-conta">
+      <button class="btn-secundario" onclick="voltarInicio()">Ir para o início</button>
+      <button class="btn-link" onclick="terminarSessao()">Terminar sessão</button>
+    </div>
+  </section>
+
+  <section id="ecra-chat" class="oculto">
+    <div class="painel">
+      <div class="topo-quiz">
+        <button class="btn-voltar" id="chat-voltar" onclick="voltarDoChat()">← Voltar</button>
+        <span class="contador" id="chat-titulo"></span>
+      </div>
+      <div class="chat-mensagens" id="chat-mensagens"></div>
+      <div class="chat-enviar">
+        <textarea id="chat-texto" rows="2" placeholder="Escreva uma mensagem..."></textarea>
+        <button class="btn-principal" onclick="enviarChat()">Enviar</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Site independente de estudo.</footer>
+
+<button class="chat-flutuante oculto" id="chat-flutuante" onclick="abrirChatAdmin()" aria-label="Mensagens à administração">
+  💬
+  <span class="badge-flutuante oculto" id="badge-flutuante"></span>
+</button>
+
+<div id="modal-overlay" class="modal-overlay oculto" onclick="if(event.target===this)fecharModal(false)">
+  <div class="modal-caixa">
+    <p id="modal-texto"></p>
+    <button class="btn-principal" id="modal-ok" onclick="fecharModal(true)">OK</button>
+  </div>
+</div>
+
+<!-- Firebase SDKs (Modular v10+) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get, update, remove, onValue, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCSPs64WCxSCdq2hMrJcnKYg70xkfNmdiM",
+    authDomain: "prova-escrita-do-minint.firebaseapp.com",
+    databaseURL: "https://prova-escrita-do-minint-default-rtdb.firebaseio.com",
+    projectId: "prova-escrita-do-minint",
+    storageBucket: "prova-escrita-do-minint.firebasestorage.app",
+    messagingSenderId: "871679615129",
+    appId: "1:871679615129:web:50ccd73a44650024ca5808"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // ==========================================================
+  // PERGUNTAS — QUIZ DA POLÍCIA (71)
+  // ==========================================================
+  const perguntasPolicia = [
+    { pergunta: "Qual é o princípio fundamental que deve orientar a atuação de um agente da Polícia?", opcoes: ["O uso da força como primeiro recurso", "O respeito pela lei e pelos direitos humanos", "A autoridade pessoal acima da lei", "A obediência cega às ordens superiores"], resposta: 1, explicacao: "A atuação policial deve sempre respeitar a lei e os direitos fundamentais de todas as pessoas." },
+    { pergunta: "Ao efetuar uma detenção, o agente deve, em regra:", opcoes: ["Esperar que o detido confesse", "Informar o detido dos motivos da detenção", "Retirar todos os bens do detido", "Não comunicar nada à família"], resposta: 1, explicacao: "O detido tem direito a ser informado, de forma clara, dos motivos da sua detenção." },
+    { pergunta: "O princípio da presunção de inocência significa que:", opcoes: ["O suspeito é culpado até provar a sua inocência", "Qualquer pessoa é considerada inocente até decisão judicial definitiva", "A polícia decide quem é culpado", "O suspeito não tem direito a defesa"], resposta: 1, explicacao: "Toda a pessoa é considerada inocente até que a sua culpa seja declarada por decisão judicial transitada em julgado." },
+    { pergunta: "O uso da força pela polícia deve obedecer, sobretudo, ao princípio de:", opcoes: ["Vingança", "Proporcionalidade e necessidade", "Rapidez a qualquer custo", "Intimidação pública"], resposta: 1, explicacao: "A força deve ser apenas a necessária e proporcional à situação, e apenas quando outros meios não forem suficientes." },
+    { pergunta: "Um agente de polícia que recebe uma ordem claramente ilegal deve:", opcoes: ["Cumpri-la sem questionar", "Recusar-se a cumprir e comunicar a situação aos superiores", "Cumpri-la e depois esquecer", "Executá-la apenas se o superior insistir"], resposta: 1, explicacao: "Nenhum agente é obrigado a cumprir ordens manifestamente ilegais. Deve recusar e reportar." },
+    { pergunta: "A condução do detido perante a autoridade judicial competente deve ocorrer:", opcoes: ["Quando a polícia tiver tempo", "Dentro do prazo legal fixado na Constituição e na lei", "Somente após um mês de detenção", "Nunca, se o detido for pobre"], resposta: 1, explicacao: "A lei fixa prazos máximos para que o detido seja apresentado a um juiz. Estes prazos devem ser sempre respeitados." },
+    { pergunta: "A polícia de proximidade com a comunidade serve, principalmente, para:", opcoes: ["Aumentar o medo da população", "Criar uma relação de confiança e prevenir o crime", "Substituir os tribunais", "Controlar as atividades políticas"], resposta: 1, explicacao: "A proximidade com os cidadãos aumenta a confiança e facilita a prevenção criminal." },
+    { pergunta: "Durante uma revista a uma pessoa, o agente deve:", opcoes: ["Agir sem qualquer justificação", "Ter fundamento legal e respeitar a dignidade da pessoa", "Revistar em público, para intimidar", "Apreender tudo o que encontrar"], resposta: 1, explicacao: "A revista deve ter fundamento legal, ser feita com respeito pela dignidade e, sempre que possível, em local reservado." },
+    { pergunta: "O sigilo profissional do agente de polícia refere-se a:", opcoes: ["Vender informações a terceiros", "Não divulgar informações obtidas no exercício das funções sem autorização", "Esconder crimes de colegas", "Falar apenas com os superiores"], resposta: 1, explicacao: "As informações recolhidas em serviço devem ser tratadas com reserva e não divulgadas sem autorização legal." },
+    { pergunta: "Quando um cidadão apresenta uma queixa ou denúncia, o agente deve:", opcoes: ["Ignorá-la se parecer pouco importante", "Registar a queixa e dar-lhe o encaminhamento devido", "Pedir ao cidadão que volte outro dia", "Recomendar que resolva por conta própria"], resposta: 1, explicacao: "Toda a queixa deve ser registada e encaminhada para as entidades competentes." },
+    { pergunta: "A conduta ética do polícia deve ser caracterizada por:", opcoes: ["Imparcialidade, integridade e respeito pelo cidadão", "Favorecimento a amigos e familiares", "Aceitação de presentes em troca de serviços", "Atuação segundo interesses pessoais"], resposta: 0, explicacao: "A integridade, a imparcialidade e o respeito pelo cidadão são pilares da ética policial." },
+    { pergunta: "Em caso de flagrante delito, qualquer pessoa pode, em regra:", opcoes: ["Agredir o suspeito", "Proceder à detenção, entregando o detido de imediato à autoridade", "Ficar com os bens do suspeito", "Fazer justiça pelas próprias mãos"], resposta: 1, explicacao: "Em flagrante delito, a detenção é permitida, mas o detido deve ser entregue de imediato às autoridades competentes, sem violência." },
+    { pergunta: "A Polícia Nacional de Angola é uma instituição que deve servir, sobretudo:", opcoes: ["Apenas o Governo", "Os cidadãos, garantindo a ordem pública e a segurança das pessoas", "Apenas as grandes empresas", "Somente as zonas urbanas"], resposta: 1, explicacao: "A polícia existe para proteger a ordem pública, as pessoas e os seus bens, em benefício de toda a população." },
+    { pergunta: "O que é o Ministério do Interior?", opcoes: ["Departamento ministerial responsável pela política agrícola e pelo desenvolvimento rural", "Departamento ministerial auxiliar do Presidente da República e Titular do Poder Executivo responsável pela segurança interna, ordem pública, actividade policial, investigação criminal, migração, sistema penitenciário, protecção civil e bombeiros", "Órgão judicial que julga os crimes de natureza penal", "Órgão que organiza as eleições gerais"], resposta: 1, explicacao: "O MININT é o departamento ministerial auxiliar do Presidente da República e Titular do Poder Executivo responsável pela segurança interna, ordem pública, actividade policial, investigação criminal, migração, sistema penitenciário, protecção civil e bombeiros." },
+    { pergunta: "Qual é o diploma que aprova o Estatuto Orgânico do Ministério do Interior?", opcoes: ["Lei n.º 12/18, de 7 de Fevereiro", "Decreto Executivo n.º 32/18, de 7 de Fevereiro", "Decreto Presidencial n.º 32/18, de 7 de Fevereiro", "Decreto Presidencial n.º 23/16, de 10 de Março"], resposta: 2, explicacao: "Decreto Presidencial n.º 32/18, de 7 de Fevereiro." },
+    { pergunta: "Quais são os serviços executivos directos do MININT?", opcoes: ["Polícia Nacional, Serviço de Saúde Pública, Serviço de Educação e Serviço de Trânsito", "Serviço de Investigação Criminal, Serviço Fiscal, Serviço de Alfândega e Serviço Florestal", "Gabinete Jurídico, Gabinete de Comunicação, Inspecção Geral e Conselho Consultivo", "Polícia Nacional, Serviço de Investigação Criminal, Serviço de Migração e Estrangeiros, Serviço Penitenciário e Serviço de Protecção Civil e Bombeiros"], resposta: 3, explicacao: "Polícia Nacional, Serviço de Investigação Criminal, Serviço de Migração e Estrangeiros, Serviço Penitenciário e Serviço de Protecção Civil e Bombeiros." },
+    { pergunta: "Qual é a função principal da Polícia Nacional?", opcoes: ["Garantir a ordem pública, a segurança dos cidadãos, a tranquilidade pública, a prevenção da criminalidade e a protecção de pessoas e bens.", "Cobrar impostos e taxas aduaneiras", "Gerir o sistema de saúde pública", "Organizar o recenseamento eleitoral"], resposta: 0, explicacao: "Garantir a ordem pública, a segurança dos cidadãos, a tranquilidade pública, a prevenção da criminalidade e a protecção de pessoas e bens." },
+    { pergunta: "Qual é a função principal do SIC?", opcoes: ["Emitir passaportes e documentos de identificação", "Controlar o tráfego rodoviário nas estradas nacionais", "Investigar crimes, identificar os seus autores, recolher elementos de prova e apoiar a realização da justiça penal.", "Administrar as prisões e os estabelecimentos penitenciários"], resposta: 2, explicacao: "Investigar crimes, identificar os seus autores, recolher elementos de prova e apoiar a realização da justiça penal." },
+    { pergunta: "Qual é a função principal do SME?", opcoes: ["Gerir as receitas fiscais do Estado", "Executar a política migratória, controlar entradas e saídas do território nacional, fiscalizar a permanência de estrangeiros e combater a imigração ilegal.", "Combater incêndios florestais nas províncias", "Dirigir a formação dos quadros da polícia"], resposta: 1, explicacao: "Executar a política migratória, controlar entradas e saídas do território nacional, fiscalizar a permanência de estrangeiros e combater a imigração ilegal." },
+    { pergunta: "Qual é a função principal do Serviço Penitenciário?", opcoes: ["Julgar os processos criminais em primeira instância", "Emitir cartas de condução e registo automóvel", "Fiscalizar o comércio e os preços dos bens essenciais", "Executar a política penitenciária, assegurar a custódia dos cidadãos privados de liberdade e promover a reinserção social dos reclusos."], resposta: 3, explicacao: "Executar a política penitenciária, assegurar a custódia dos cidadãos privados de liberdade e promover a reinserção social dos reclusos." },
+    { pergunta: "Qual é a função principal do Serviço de Protecção Civil e Bombeiros?", opcoes: ["Fiscalizar a construção civil e o licenciamento de obras", "Gerir as escolas técnicas do país", "Prevenir e responder a incêndios, acidentes, calamidades e outras situações de risco colectivo.", "Controlar a qualidade da água para consumo público"], resposta: 2, explicacao: "Prevenir e responder a incêndios, acidentes, calamidades e outras situações de risco colectivo." },
+    { pergunta: "Quem dirige o Ministério do Interior?", opcoes: ["O Presidente da Assembleia Nacional", "O Ministro do Interior.", "O Comandante-Geral da Polícia Nacional", "O Procurador-Geral da República"], resposta: 1, explicacao: "O Ministro do Interior dirige o Ministério do Interior." },
+    { pergunta: "Quem coadjuva o Ministro do Interior?", opcoes: ["Os Secretários de Estado.", "Os Governadores Provinciais", "Os Comandantes Municipais", "Os Juízes do Tribunal Supremo"], resposta: 0, explicacao: "Os Secretários de Estado coadjuvam o Ministro do Interior." },
+    { pergunta: "O que são órgãos consultivos?", opcoes: ["São órgãos que executam directamente as sentenças dos tribunais", "São órgãos que cobram multas e taxas administrativas", "São órgãos que apoiam a tomada de decisões, analisam matérias relevantes e emitem pareceres ou recomendações.", "São órgãos que aprovam leis e decretos com força obrigatória"], resposta: 2, explicacao: "São órgãos que apoiam a tomada de decisões, analisam matérias relevantes e emitem pareceres ou recomendações." },
+    { pergunta: "Quais são alguns princípios de actuação do MININT?", opcoes: ["Hierarquia absoluta, sigilo total, autoridade pessoal e obediência cega", "Lucro, competitividade, concorrência e rentabilidade", "Centralização, secretismo, arbitrariedade e uso indiscriminado da força", "Legalidade, prossecução do interesse público, proporcionalidade, imparcialidade, justiça, igualdade, responsabilidade, integridade, aproximação dos serviços aos cidadãos e lealdade institucional."], resposta: 3, explicacao: "Legalidade, prossecução do interesse público, proporcionalidade, imparcialidade, justiça, igualdade, responsabilidade, integridade, aproximação dos serviços aos cidadãos e lealdade institucional." },
+    { pergunta: "O MININT é responsável principalmente por:", opcoes: ["Política agrícola", "Segurança interna", "Política monetária", "Administração eleitoral"], resposta: 1, explicacao: "O MININT é responsável principalmente pela segurança interna." },
+    { pergunta: "O órgão vocacionado para a investigação criminal é:", opcoes: ["SME", "SIC", "Serviço Penitenciário", "Protecção Civil"], resposta: 1, explicacao: "O SIC é o órgão vocacionado para a investigação criminal." },
+    { pergunta: "O controlo migratório é competência principal do:", opcoes: ["Serviço de Migração e Estrangeiros", "Serviço Penitenciário", "Gabinete Jurídico", "Conselho Consultivo"], resposta: 0, explicacao: "O controlo migratório é competência principal do Serviço de Migração e Estrangeiros (SME)." },
+    { pergunta: "A prevenção e combate a incêndios pertence principalmente ao:", opcoes: ["SIC", "SME", "Serviço de Protecção Civil e Bombeiros", "Direcção de Logística"], resposta: 2, explicacao: "A prevenção e o combate a incêndios pertencem principalmente ao Serviço de Protecção Civil e Bombeiros." },
+    { pergunta: "A execução das penas privativas de liberdade está ligada ao:", opcoes: ["Serviço Penitenciário", "Gabinete de Comunicação", "Conselho Superior de Quadros", "Inspecção Geral"], resposta: 0, explicacao: "A execução das penas privativas de liberdade está ligada ao Serviço Penitenciário." },
+    { pergunta: "Qual é o diploma que aprova o Estatuto Orgânico da Polícia Nacional?", opcoes: ["Lei n.º 15/19, de 5 de Maio", "Decreto Executivo n.º 52/19, de 15 de Abril", "Decreto Presidencial n.º 152/19, de 15 de Maio", "Decreto Presidencial n.º 51/16, de 10 de Junho"], resposta: 2, explicacao: "Decreto Presidencial n.º 152/19, de 15 de Maio." },
+    { pergunta: "Qual é a natureza da Polícia Nacional?", opcoes: ["É uma força militarizada, uniformizada, armada, apartidária e de natureza permanente.", "É um órgão civil, desarmado e de natureza temporária", "É uma empresa pública de segurança privada", "É uma organização partidária de carácter provisório"], resposta: 0, explicacao: "É uma força militarizada, uniformizada, armada, apartidária e de natureza permanente." },
+    { pergunta: "Quem dirige a Polícia Nacional?", opcoes: ["O Ministro do Interior", "O Comandante-Geral da Polícia Nacional.", "O Director-Geral do SIC", "O Presidente do Conselho Superior de Justiça e Disciplina"], resposta: 1, explicacao: "O Comandante-Geral da Polícia Nacional dirige a Polícia Nacional." },
+    { pergunta: "Perante quem responde o Comandante-Geral?", opcoes: ["Responde perante a Assembleia Nacional e o Tribunal Supremo", "Responde apenas perante o Conselho de Comandantes", "Responde perante o Procurador-Geral da República e o Ministro da Justiça", "Responde perante o Ministro do Interior e o Comandante-em-Chefe."], resposta: 3, explicacao: "Responde perante o Ministro do Interior e o Comandante-em-Chefe." },
+    { pergunta: "Qual é a missão principal da Polícia Nacional?", opcoes: ["Cobrar taxas de trânsito e aplicar coimas fiscais", "Garantir a legalidade democrática, a ordem e tranquilidade públicas, a segurança dos cidadãos, a protecção de pessoas e bens, a prevenção e o combate à criminalidade.", "Gerir o património do Estado e as empresas públicas", "Organizar eleições e o registo de partidos políticos"], resposta: 1, explicacao: "Garantir a legalidade democrática, a ordem e tranquilidade públicas, a segurança dos cidadãos, a protecção de pessoas e bens, a prevenção e o combate à criminalidade." },
+    { pergunta: "A Polícia Nacional integra que Ministério?", opcoes: ["Ministério da Defesa Nacional", "Ministério da Justiça e dos Direitos Humanos", "Ministério da Administração do Território", "Ministério do Interior"], resposta: 3, explicacao: "A Polícia Nacional integra o Ministério do Interior." },
+    { pergunta: "Quais são alguns órgãos de conselho da Polícia Nacional?", opcoes: ["Conselho Geral da Polícia Nacional, Conselho Superior de Polícia, Conselho Superior de Quadros, Conselho Superior de Justiça e Disciplina e Conselho de Comandantes.", "Conselho de Ministros, Conselho da República, Conselho de Estado e Conselho Económico", "Conselho Nacional de Educação e Conselho de Imprensa", "Conselho Superior da Magistratura, Conselho Fiscal e Conselho Municipal"], resposta: 0, explicacao: "Conselho Geral da Polícia Nacional, Conselho Superior de Polícia, Conselho Superior de Quadros, Conselho Superior de Justiça e Disciplina e Conselho de Comandantes." },
+    { pergunta: "O que faz a Inspecção Geral?", opcoes: ["Cobra impostos e taxas sobre actividades comerciais", "Julga os agentes em processos criminais de primeira instância", "Inspecciona, fiscaliza, avalia e controla a actividade dos órgãos, serviços e unidades da Polícia Nacional.", "Organiza a formação dos quadros e o recrutamento de efectivos"], resposta: 2, explicacao: "Inspecciona, fiscaliza, avalia e controla a actividade dos órgãos, serviços e unidades da Polícia Nacional." },
+    { pergunta: "Qual é a função da Direcção de Trânsito e Segurança Rodoviária?", opcoes: ["Construir e conservar as estradas nacionais", "Emitir passaportes e documentos de identificação", "Administrar as prisões e os estabelecimentos penitenciários", "Regular, fiscalizar e controlar o trânsito rodoviário, promovendo a segurança rodoviária e a prevenção de acidentes."], resposta: 3, explicacao: "Regular, fiscalizar e controlar o trânsito rodoviário, promovendo a segurança rodoviária e a prevenção de acidentes." },
+    { pergunta: "Qual é a função dos Comandos Provinciais?", opcoes: ["Dirigir a Polícia Nacional a nível nacional e definir a política de segurança", "Representar e executar a actividade da Polícia Nacional ao nível das províncias.", "Legislar sobre matérias de segurança pública", "Julgar os crimes cometidos por agentes policiais"], resposta: 1, explicacao: "Representar e executar a actividade da Polícia Nacional ao nível das províncias." },
+    { pergunta: "O que significa dizer que a Polícia Nacional é apartidária?", opcoes: ["Significa que não serve partidos políticos, interesses privados ou grupos particulares; serve o Estado, a Constituição, a lei e os cidadãos.", "Significa que apoia o partido no poder em todas as decisões", "Significa que os agentes podem filiar-se em partidos durante o serviço", "Significa que a polícia só actua em períodos eleitorais"], resposta: 0, explicacao: "Significa que não serve partidos políticos, interesses privados ou grupos particulares; serve o Estado, a Constituição, a lei e os cidadãos." },
+    { pergunta: "O que significa dizer que a Polícia Nacional é militarizada?", opcoes: ["Significa que os agentes usam farda militar em todas as actividades civis", "Significa que a polícia pertence às Forças Armadas Angolanas", "Significa que a polícia não tem qualquer regra de comando", "Significa que possui organização baseada em hierarquia, disciplina, comando e subordinação funcional."], resposta: 3, explicacao: "Significa que possui organização baseada em hierarquia, disciplina, comando e subordinação funcional." },
+    { pergunta: "Qual é a função da Polícia de Intervenção Rápida?", opcoes: ["Fiscalizar a emissão de licenças de construção", "Gerir os processos de investigação criminal", "Actuar em situações que exigem resposta operacional rápida, manutenção da ordem pública e intervenção em situações complexas.", "Realizar censos populacionais e estatísticas criminais"], resposta: 2, explicacao: "Actuar em situações que exigem resposta operacional rápida, manutenção da ordem pública e intervenção em situações complexas." },
+    { pergunta: "Qual é a função da Polícia de Guarda Fronteira?", opcoes: ["Proteger e fiscalizar as fronteiras nacionais, prevenindo ilícitos transfronteiriços e defendendo a soberania territorial.", "Gerir o comércio externo e as alfândegas de exportação", "Administrar os centros de acolhimento de refugiados", "Controlar a emissão de vistos de trabalho nas embaixadas"], resposta: 0, explicacao: "Proteger e fiscalizar as fronteiras nacionais, prevenindo ilícitos transfronteiriços e defendendo a soberania territorial." },
+    { pergunta: "Qual é a importância dos órgãos de ensino policial?", opcoes: ["Produzir material de propaganda política", "Substituir os tribunais na resolução de litígios", "Formar, capacitar e aperfeiçoar os efectivos da Polícia Nacional, garantindo preparação técnica, jurídica, ética e operacional.", "Gerir o património imobiliário do Estado"], resposta: 2, explicacao: "Formar, capacitar e aperfeiçoar os efectivos da Polícia Nacional, garantindo preparação técnica, jurídica, ética e operacional." },
+    { pergunta: "Quando é celebrado o Dia da Polícia Nacional de Angola e porquê?", opcoes: ["1 de Maio, como homenagem ao Dia do Trabalhador, em 1980, em Benguela", "28 de Fevereiro, data que recorda o juramento de bandeira de 383 efectivos, em 1976, na Escola de Polícia Mártires do Kapolo, em Luanda.", "11 de Novembro, Dia da Independência de Angola, em homenagem aos agentes que lutaram pela libertação", "4 de Abril, data da fundação da Polícia de Intervenção Rápida, em 1992"], resposta: 1, explicacao: "28 de Fevereiro, data que recorda o juramento de bandeira de 383 efectivos, em 1976, na Escola de Polícia Mártires do Kapolo, em Luanda." },
+    { pergunta: "Em que ano a corporação passou a chamar-se Polícia Nacional?", opcoes: ["1976", "1981", "1983", "2002"], resposta: 2, explicacao: "Segundo a cronologia institucional divulgada pelo Governo angolano, a corporação passou a chamar-se Polícia Nacional em 1983, designação que se mantém até hoje." },
+    { pergunta: "O que mudou na organização policial durante a década de 1980?", opcoes: ["A polícia foi extinta e substituída por milícias populares", "A polícia passou a depender exclusivamente das Forças Armadas, sem estrutura própria", "A polícia deixou de ter funções de investigação criminal e foi transferida para os tribunais", "A estrutura foi sendo reorganizada e órgãos ligados à investigação criminal e à investigação de actividades económicas passaram a integrar, em diferentes momentos, a estrutura policial."], resposta: 3, explicacao: "A estrutura foi sendo reorganizada e órgãos ligados à investigação criminal e à investigação de actividades económicas passaram a integrar, em diferentes momentos, a estrutura policial." },
+    { pergunta: "Como evoluiu a investigação criminal depois da independência?", opcoes: ["Teve várias estruturas e designações: em 1981 surgiu a Direcção Nacional de Investigação Criminal (DNIC) e, em 1993, a DNIC aparece integrada na Polícia Nacional.", "Sempre foi uma estrutura independente, sem alterações desde a independência", "Foi entregue ao Serviço Penitenciário logo em 1975", "Foi extinta em 1981 e nunca mais existiu"], resposta: 0, explicacao: "A investigação criminal teve várias estruturas e designações: em 1981 surgiu a Direcção Nacional de Investigação Criminal (DNIC) e, em 1993, a DNIC aparece integrada na estrutura da Polícia Nacional." },
+    { pergunta: "A PNA e o Serviço de Investigação Criminal (SIC) são a mesma instituição?", opcoes: ["Sim, o SIC é apenas outro nome da Polícia Nacional", "Não. São órgãos distintos: o SIC é um órgão do Ministério do Interior especializado na investigação criminal, enquanto a Polícia Nacional tem uma missão mais ampla de segurança e ordem públicas.", "Sim, o SIC foi integrado na Polícia Nacional e deixou de existir", "Sim, a Polícia Nacional é o órgão de investigação criminal do Ministério da Justiça"], resposta: 1, explicacao: "Não. A Polícia Nacional e o SIC são órgãos distintos. O SIC é um órgão do Ministério do Interior especializado na investigação criminal; a PNA tem uma missão mais ampla de segurança e ordem públicas." },
+    { pergunta: "O fim da guerra civil, em 2002, encerrou a evolução da Polícia Nacional?", opcoes: ["Sim, a Polícia Nacional foi dissolvida após o fim da guerra civil", "Sim, a partir de 2002 a polícia deixou de ter formação", "Não. A corporação continuou a adaptar-se às necessidades do país, com mudanças de organização, formação e modernização dos seus meios.", "Sim, a polícia passou a ser exclusivamente militar e deixou de servir os cidadãos"], resposta: 2, explicacao: "Não. A corporação continuou a adaptar-se às necessidades do país, com mudanças de organização, formação e modernização dos seus meios." },
+    { pergunta: "Qual é a missão geral da PNA segundo o Estatuto Orgânico de 2019?", opcoes: ["Cobrar impostos, taxas e coimas sobre o comércio", "Gerir os recursos naturais e o património do Estado", "Administrar os tribunais e os processos judiciais", "Defender a legalidade democrática, garantir a segurança pública, proteger os direitos e liberdades dos cidadãos e manter a ordem e a tranquilidade públicas."], resposta: 3, explicacao: "Entre as suas atribuições estão defender a legalidade democrática, garantir a segurança pública, proteger os direitos e liberdades dos cidadãos e manter a ordem e a tranquilidade públicas." },
+    { pergunta: "Que mudanças legais recentes fazem parte da história da corporação?", opcoes: ["Decreto Presidencial n.º 152/19, de 15 de Maio, e Lei n.º 6/10, de 24 de Março", "A Lei n.º 6/20, de 24 de Março (bases gerais de organização e funcionamento) e a Lei n.º 10/25 (regime disciplinar dos agentes)", "Lei n.º 10/20, de 24 de Março, sobre o regime fiscal da polícia", "Lei n.º 6/25, de 10 de Outubro, sobre o recrutamento de militares"], resposta: 1, explicacao: "A Lei n.º 6/20, de 24 de Março, estabeleceu bases gerais sobre a organização e o funcionamento da PNA. Em 2025 foi publicada a Lei n.º 10/25, relativa ao regime disciplinar dos agentes da Polícia Nacional." },
+    { pergunta: "Que desafios atuais são apontados para a Polícia Nacional?", opcoes: ["A extinção da corporação e a transferência dos agentes para o sector privado", "A redução do número de escolas de polícia", "A formação dos efectivos, a modernização dos meios, a melhoria das condições de trabalho, o combate à corrupção e o reforço da capacidade técnico-científica.", "A eliminação das forças de intervenção rápida"], resposta: 2, explicacao: "Entre os desafios mencionados em fontes oficiais estão a formação dos efectivos, a modernização dos meios, a melhoria das condições de trabalho, o combate à corrupção e o reforço da capacidade técnico-científica." },
+    { pergunta: "Quem foi um dos primeiros comandantes-gerais da polícia angolana após a independência?", opcoes: ["João Arnaldo Saraiva de Carvalho (Tetembua), entre 1979 e 1981", "Santana André Pitra (Petroff), entre 1975 e 1979", "Fernando Torres Vaz da Conceição, entre 1981 e 1983", "Paulo Gaspar de Almeida, entre 2018 e 2022"], resposta: 1, explicacao: "A galeria oficial da PNA lista Santana André Pitra (Petroff) como comandante-geral entre 1975 e 1979." },
+    { pergunta: "Como se formaram os primeiros quadros policiais nacionais?", opcoes: ["Foram recrutados diretamente da polícia portuguesa, sem formação adicional", "A instituição começou a organizar e formar efectivos angolanos para substituir gradualmente os quadros do período colonial e responder às necessidades do país independente.", "Foram formados apenas por militares estrangeiros, sem qualquer ligação ao país", "Não houve formação, os agentes foram nomeados por decreto sem preparação"], resposta: 1, explicacao: "A instituição começou a organizar e formar efectivos angolanos para substituir gradualmente os quadros do período colonial e responder às necessidades do país independente." },
+    { pergunta: "Quando começou a cooperação internacional na formação policial?", opcoes: ["Apenas a partir de 2010, com a China", "Só depois de 2002, após o fim da guerra civil", "Logo após a independência, inicialmente com Cuba; a partir da década de 1990 diversificaram-se os parceiros, e a cooperação com Portugal começou em 1997.", "Nunca houve cooperação internacional na formação policial"], resposta: 2, explicacao: "Segundo um estudo publicado na revista Politeia, os primeiros acordos de formação começaram logo após a independência, inicialmente com Cuba. A partir da década de 1990, diversificaram-se os parceiros; a cooperação com Portugal começou em 1997." },
+    { pergunta: "Que papel teve a formação no exterior?", opcoes: ["Trouxe apenas atrasos administrativos, sem qualquer impacto no trabalho", "Proibiu a formação de oficiais fora do país", "Limitou-se à formação de agentes em Portugal, sem outras influências", "Trouxe novas competências e influências para o trabalho policial, e o modelo angolano resulta da combinação de várias experiências, adaptadas à realidade do país."], resposta: 3, explicacao: "A formação de oficiais em diferentes países trouxe novas competências e influências para o trabalho policial. O estudo descreve o modelo angolano como resultado da combinação de várias experiências, adaptadas à realidade do país." },
+    { pergunta: "Quem sucedeu Santana André Pitra?", opcoes: ["Ambrósio de Lemos Freire dos Santos", "João Arnaldo Saraiva de Carvalho (Tetembua)", "Paulo Gaspar de Almeida", "Santana André Pitra (Petroff)"], resposta: 1, explicacao: "Segundo a galeria oficial, João Arnaldo Saraiva de Carvalho (Tetembua) dirigiu a corporação de 1979 a 1981, seguido por Fernando Torres Vaz da Conceição, de 1981 a 1983." },
+    { pergunta: "Quem comandou a PNA depois do fim da guerra civil?", opcoes: ["Paulo Gaspar de Almeida, de 2018 a 2022", "Fernando Torres Vaz da Conceição, de 1981 a 1983", "José Alfredo (Ekuikui), de 2003 a 2006, e Ambrósio de Lemos Freire dos Santos, de 2006 a 2017.", "João Arnaldo Saraiva de Carvalho, de 1979 a 1981"], resposta: 2, explicacao: "A galeria oficial regista José Alfredo (Ekuikui) de 2003 a 2006 e Ambrósio de Lemos Freire dos Santos de 2006 a 2017." },
+    { pergunta: "Quem assumiu o comando-geral entre 2018 e 2022?", opcoes: ["José Alfredo (Ekuikui)", "Ambrósio de Lemos Freire dos Santos", "Paulo Gaspar de Almeida", "Santana André Pitra (Petroff)"], resposta: 2, explicacao: "A galeria da PNA lista Paulo Gaspar de Almeida para esse período." },
+    { pergunta: "O que significa PNA?", opcoes: ["Polícia Nacional de Angola", "Polícia Nacional Africana", "Polícia Nacional Armada", "Polícia Nacional Administrativa"], resposta: 0, explicacao: "PNA significa Polícia Nacional de Angola." },
+    { pergunta: "O que faz o Serviço de Investigação Criminal (SIC)?", opcoes: ["Julga os crimes em tribunal", "Investiga crimes e reúne elementos para ajudar a esclarecer os casos, em coordenação com as autoridades competentes", "Administra as prisões", "Controla as fronteiras"], resposta: 1, explicacao: "O SIC investiga crimes e reúne elementos para ajudar a esclarecer os casos, em coordenação com as autoridades competentes." },
+    { pergunta: "O que significa SIC?", opcoes: ["Serviço de Investigação Criminal", "Serviço de Investigação Civil", "Serviço Interno de Combate", "Serviço de Inspecção Criminal"], resposta: 0, explicacao: "SIC significa Serviço de Investigação Criminal." },
+    { pergunta: "Qual é a função do Serviço de Migração e Estrangeiros (SME)?", opcoes: ["Investiga crimes", "Trata de assuntos relacionados com a entrada, permanência e saída de estrangeiros e com a documentação migratória", "Administra as prisões", "Combate incêndios"], resposta: 1, explicacao: "O SME trata de assuntos relacionados com a entrada, permanência e saída de estrangeiros e com a documentação migratória." },
+    { pergunta: "O que faz o Serviço Penitenciário?", opcoes: ["Administra os estabelecimentos prisionais e acompanha a execução das penas, respeitando as leis em vigor", "Investiga crimes", "Controla as fronteiras", "Regula o trânsito"], resposta: 0, explicacao: "O Serviço Penitenciário administra os estabelecimentos prisionais e acompanha a execução das penas, respeitando as leis em vigor." },
+    { pergunta: "Qual é o trabalho dos Serviços de Protecção Civil e Bombeiros?", opcoes: ["Investiga crimes", "Administra as prisões", "Controla as fronteiras", "Previnem e respondem a incêndios, acidentes e outras situações de emergência, ajudando a proteger vidas e bens"], resposta: 3, explicacao: "Os Serviços de Protecção Civil e Bombeiros previnem e respondem a incêndios, acidentes e outras situações de emergência, ajudando a proteger vidas e bens." },
+    { pergunta: "O SIC substitui os tribunais?", opcoes: ["Sim, o SIC substitui os tribunais quando é mais rápido", "Sim, o SIC decide a culpa do suspeito", "Não. O SIC investiga; os tribunais julgam os casos conforme a lei", "Sim, mas apenas em crimes menores"], resposta: 2, explicacao: "Não. O SIC investiga; os tribunais julgam os casos conforme a lei." },
+    { pergunta: "Quem decide se uma pessoa é culpada de um crime?", opcoes: ["A polícia, no local do crime", "O SIC, após a investigação", "A decisão cabe aos tribunais, depois de analisarem o caso e as provas", "O Ministério Público, sem intervenção dos tribunais"], resposta: 2, explicacao: "A decisão cabe aos tribunais, depois de analisarem o caso e as provas." },
+    { pergunta: "O que pode ajudar uma investigação criminal?", opcoes: ["Apenas a confissão do suspeito", "Relatos de testemunhas, documentos, imagens e outros elementos recolhidos legalmente", "Apenas boatos da vizinhança", "Apenas a opinião pública"], resposta: 1, explicacao: "Relatos de testemunhas, documentos, imagens e outros elementos recolhidos legalmente podem ajudar uma investigação criminal." },
+    { pergunta: "O SME trata de passaportes de cidadãos angolanos?", opcoes: ["Sim, é o SME que emite todos os passaportes", "Não. O SME trata principalmente de questões migratórias e de estrangeiros. Para documentos de identificação ou viagem de cidadãos angolanos, é necessário procurar os serviços públicos competentes para esse documento", "Sim, mas apenas para cidadãos com dupla nacionalidade", "Não, o SME não tem qualquer competência migratória"], resposta: 1, explicacao: "O SME trata principalmente de questões migratórias e de estrangeiros. Para documentos de identificação ou viagem de cidadãos angolanos, é necessário procurar os serviços públicos competentes para esse documento." }
+  ];
+
+  // ==========================================================
+  // PERGUNTAS — CULTURA GERAL DE ANGOLA (83)
+  // ==========================================================
+  const perguntasCultura = [
+    { pergunta: "Qual é a capital de Angola?", opcoes: ["Benguela", "Huambo", "Luanda", "Lubango"], resposta: 2, explicacao: "Luanda é a capital e a maior cidade de Angola." },
+    { pergunta: "Em que data Angola proclamou a sua independência de Portugal?", opcoes: ["4 de fevereiro de 1961", "11 de novembro de 1975", "1 de dezembro de 1640", "25 de abril de 1974"], resposta: 1, explicacao: "A independência foi proclamada a 11 de novembro de 1975, data que hoje é feriado nacional." },
+    { pergunta: "Qual é a moeda oficial de Angola?", opcoes: ["Dólar", "Escudo", "Kwanza", "Metical"], resposta: 2, explicacao: "A moeda oficial de Angola é o Kwanza (AOA)." },
+    { pergunta: "Quem foi o primeiro Presidente de Angola após a independência?", opcoes: ["José Eduardo dos Santos", "Agostinho Neto", "Holden Roberto", "Jonas Savimbi"], resposta: 1, explicacao: "Agostinho Neto, poeta e líder do MPLA, foi o primeiro Presidente da República de Angola." },
+    { pergunta: "Qual é a língua oficial de Angola?", opcoes: ["Inglês", "Francês", "Português", "Espanhol"], resposta: 2, explicacao: "O português é a língua oficial, falando-se também várias línguas nacionais como o kimbundu, o umbundu e o kikongo." },
+    { pergunta: "Qual é o nome do hino nacional de Angola?", opcoes: ["Angola Avante", "Terra Mãe", "Nossa Pátria", "Liberdade"], resposta: 0, explicacao: "O hino nacional de Angola chama-se «Angola Avante»." },
+    { pergunta: "Qual é o rio mais extenso que nasce e corre inteiramente em território angolano?", opcoes: ["Rio Zambeze", "Rio Cuanza", "Rio Okavango", "Rio Congo"], resposta: 1, explicacao: "O rio Cuanza (Kwanza) é o mais extenso que corre inteiramente dentro de Angola." },
+    { pergunta: "Qual é o ritmo musical angolano conhecido internacionalmente, de origem na capital?", opcoes: ["Samba", "Kizomba", "Tango", "Reggae"], resposta: 1, explicacao: "A kizomba é um dos ritmos mais populares de Angola, com origem em Luanda." },
+    { pergunta: "Qual é a principal dança e ritmo tradicional angolano, considerado antepassado da kizomba?", opcoes: ["Semba", "Forró", "Merengue", "Bossa nova"], resposta: 0, explicacao: "A semba é uma dança tradicional angolana, considerada uma das raízes da kizomba." },
+    { pergunta: "Qual país faz fronteira com Angola a norte?", opcoes: ["Namíbia", "República Democrática do Congo", "Zâmbia", "Botsuana"], resposta: 1, explicacao: "A norte, Angola faz fronteira com a República Democrática do Congo e com a República do Congo." },
+    { pergunta: "Qual é a montanha mais alta de Angola?", opcoes: ["Monte Moco", "Monte Kilimanjaro", "Monte Serra da Leba", "Monte Namibe"], resposta: 0, explicacao: "O Monte Moco, na província do Huambo, é o ponto mais alto de Angola." },
+    { pergunta: "Qual é o Dia Nacional de Angola?", opcoes: ["25 de dezembro", "11 de novembro", "1 de maio", "4 de abril"], resposta: 1, explicacao: "O dia 11 de novembro é o Dia da Independência e feriado nacional." },
+    { pergunta: "Qual é a província angolana onde se localiza a cidade de Benguela?", opcoes: ["Província de Benguela", "Província do Cuanza Sul", "Província do Huíla", "Província do Namibe"], resposta: 0, explicacao: "Benguela dá nome à província onde se situa a cidade, junto ao litoral atlântico." },
+    { pergunta: "Angola continua em guerra civil?", opcoes: ["Sim, o conflito armado continua em todo o território", "Sim, mas apenas nas províncias do leste", "Não. A guerra civil terminou em 2002.", "Não. A guerra civil terminou em 1975, com a independência"], resposta: 2, explicacao: "A guerra civil terminou em 2002. O país tem enfrentado desafios políticos, económicos e sociais, mas não vive atualmente aquele conflito armado nacional." },
+    { pergunta: "Que data importante se celebra em Angola a 11 de novembro?", opcoes: ["Dia da Paz e da Reconciliação Nacional", "Dia da Independência", "Dia do Trabalhador", "Dia da Mulher Angolana"], resposta: 1, explicacao: "O Dia da Independência assinala a independência de Angola, proclamada em 1975." },
+    { pergunta: "Quando Angola foi admitida na Organização das Nações Unidas (ONU)?", opcoes: ["11 de novembro de 1975", "1 de dezembro de 1976", "4 de abril de 2002", "10 de setembro de 1979"], resposta: 1, explicacao: "Angola foi admitida na ONU em 1 de dezembro de 1976, pouco mais de um ano depois da independência." },
+    { pergunta: "O que aconteceu a 27 de maio de 1977?", opcoes: ["Foi assinado o acordo de paz de Bicesse", "Houve uma tentativa de revolta associada a Nito Alves, seguida de uma repressão muito violenta", "Angola aderiu à CPLP", "Foi realizada a primeira eleição geral do país"], resposta: 1, explicacao: "Houve uma tentativa de revolta associada a Nito Alves. A resposta do Governo foi marcada por uma repressão muito violenta e por numerosas mortes." },
+    { pergunta: "Quando morreu Agostinho Neto?", opcoes: ["10 de setembro de 1979, em Moscovo", "27 de maio de 1977, em Luanda", "1 de dezembro de 1976, em Lisboa", "4 de abril de 2002, em Luanda"], resposta: 0, explicacao: "Agostinho Neto morreu a 10 de setembro de 1979, em Moscovo, enquanto recebia tratamento médico." },
+    { pergunta: "Quem assumiu a Presidência após a morte de Agostinho Neto?", opcoes: ["Holden Roberto", "Jonas Savimbi", "José Eduardo dos Santos", "Lopo do Nascimento"], resposta: 2, explicacao: "José Eduardo dos Santos assumiu a Presidência e liderou o país até 2017." },
+    { pergunta: "Quando se começou a celebrar oficialmente o Dia da Paz e da Reconciliação Nacional?", opcoes: ["11 de novembro", "4 de abril", "1 de dezembro", "27 de maio"], resposta: 1, explicacao: "A data é 4 de abril, em memória do acordo que pôs fim à guerra civil, assinado em 2002." },
+    { pergunta: "Como funciona o sistema presidencial previsto na Constituição de 2010?", opcoes: ["O Presidente é eleito diretamente pelo povo, em voto separado dos deputados", "Nas eleições gerais, os cidadãos elegem os deputados. O cabeça de lista do partido mais votado torna-se Presidente da República.", "O Presidente é escolhido pela Assembleia Nacional entre os juízes do Tribunal Constitucional", "O Presidente é nomeado pelas Forças Armadas"], resposta: 1, explicacao: "Nas eleições gerais, os cidadãos elegem os deputados. O cabeça de lista do partido mais votado torna-se Presidente da República." },
+    { pergunta: "O que significa diversificar a economia angolana?", opcoes: ["Aumentar a dependência do petróleo", "Desenvolver outras atividades, como agricultura, indústria, turismo e serviços, para reduzir a dependência do petróleo", "Fechar as fronteiras ao comércio externo", "Vender todas as reservas de diamantes"], resposta: 1, explicacao: "Diversificar a economia significa desenvolver outras atividades — como agricultura, indústria, turismo e serviços — para reduzir a dependência do petróleo." },
+    { pergunta: "Que aniversário nacional Angola celebrou em 2025?", opcoes: ["25 anos da paz", "50 anos da independência", "20 anos da Constituição", "10 anos da ONU"], resposta: 1, explicacao: "Em 2025 Angola celebrou os 50 anos da independência, proclamada a 11 de novembro de 1975." },
+    { pergunta: "Quantas províncias tem Angola desde a nova divisão político-administrativa?", opcoes: ["18 províncias", "21 províncias", "23 províncias", "25 províncias"], resposta: 1, explicacao: "Angola passou a ter 21 províncias, com a criação de Icolo e Bengo, Cuando e Moxico Leste. A nova divisão foi aprovada pela Assembleia Nacional em 2024 e entrou em aplicação em 2025." },
+    { pergunta: "O que aconteceu às antigas províncias do Cuando Cubango e do Moxico?", opcoes: ["Foram extintas e integradas em Luanda", "O Cuando Cubango foi dividido nas províncias do Cuando e do Cubango, e o Moxico foi dividido em Moxico e Moxico Leste", "Foram unidas numa única província chamada Moxico", "Passaram a fazer parte da Namíbia"], resposta: 1, explicacao: "O território do antigo Cuando Cubango foi dividido nas províncias do Cuando e do Cubango; o antigo Moxico foi dividido em Moxico e Moxico Leste." },
+    { pergunta: "Quando se celebra o Dia da Paz e da Reconciliação Nacional?", opcoes: ["11 de novembro", "1 de dezembro", "4 de abril", "27 de maio"], resposta: 2, explicacao: "Em 4 de abril, data ligada ao acordo de paz de 2002 que pôs fim à guerra civil." },
+    { pergunta: "Que acordo preparou o caminho para a independência de Angola?", opcoes: ["Acordo de Bicesse", "Acordo de Alvor", "Tratado de Simulambuco", "Acordo de Lusaka"], resposta: 1, explicacao: "O Acordo de Alvor, assinado em janeiro de 1975 entre Portugal e os principais movimentos nacionalistas angolanos." },
+    { pergunta: "Quais eram os três principais movimentos nacionalistas envolvidos no processo de independência?", opcoes: ["MPLA, UNITA e FNLA", "MPLA, FRELIMO e PAIGC", "UNITA, CPLP e FNLA", "MPLA, ONU e FLEC"], resposta: 0, explicacao: "O MPLA, a UNITA e a FNLA. Depois da independência, o conflito entre movimentos transformou-se numa guerra civil prolongada." },
+    { pergunta: "Onde foi proclamada a independência de Angola?", opcoes: ["Benguela", "Luanda", "Lisboa", "Huambo"], resposta: 1, explicacao: "A independência foi proclamada em Luanda, a 11 de novembro de 1975." },
+    { pergunta: "Como se chama o hino nacional de Angola?", opcoes: ["Angola Avante", "Terra Mãe", "Nossa Pátria", "Liberdade"], resposta: 0, explicacao: "O hino nacional chama-se «Angola Avante» e foi adotado na altura da independência." },
+    { pergunta: "Qual é a importância do rio Kwanza?", opcoes: ["É o rio que separa Angola da Namíbia", "É um dos principais rios do país, e o seu nome também está ligado à moeda nacional", "É o rio mais curto de Angola", "É um rio que não atravessa território angolano"], resposta: 1, explicacao: "O rio Kwanza é um dos principais rios do país. O seu nome também está ligado à moeda nacional, o kwanza." },
+    { pergunta: "O que significa a sigla CPLP?", opcoes: ["Comunidade dos Países de Língua Portuguesa", "Conselho dos Países de Língua Portuguesa", "Comunidade Política de Língua Portuguesa", "Confederação dos Países Lusófonos"], resposta: 0, explicacao: "A CPLP é a Comunidade dos Países de Língua Portuguesa, organização que reúne países que têm o português como língua oficial. Angola é um dos seus membros fundadores." },
+    { pergunta: "Que acontecimento assinala o dia 4 de fevereiro em Angola?", opcoes: ["A independência de Portugal", "O início da luta armada contra o domínio colonial, em 1961", "O fim da guerra civil", "A fundação da ONU"], resposta: 1, explicacao: "O início da luta armada contra o domínio colonial, em 4 de fevereiro de 1961. A data é celebrada como feriado nacional." },
+    { pergunta: "O que torna Cabinda geograficamente diferente do resto de Angola?", opcoes: ["É uma ilha no Atlântico", "É separada do território principal por uma faixa pertencente à República Democrática do Congo, sendo um enclave angolano", "Faz fronteira com a Namíbia", "Pertence à Zâmbia"], resposta: 1, explicacao: "Cabinda é uma província separada do território principal de Angola por uma faixa de território pertencente à República Democrática do Congo. É um enclave angolano." },
+    { pergunta: "Que acordo histórico está ligado à presença portuguesa em Cabinda?", opcoes: ["Acordo de Alvor, de 1975", "Tratado de Simulambuco, de 1885, que estabeleceu um protetorado português na região", "Acordo de Bicesse, de 1991", "Tratado de Berlim, de 1884"], resposta: 1, explicacao: "O Tratado de Simulambuco, assinado em 1885 entre representantes locais e Portugal, estabeleceu um protetorado português na região." },
+    { pergunta: "Qual é o principal órgão legislativo de Angola?", opcoes: ["Tribunal Constitucional", "Conselho de Ministros", "Assembleia Nacional", "Supremo Tribunal"], resposta: 2, explicacao: "A Assembleia Nacional é o parlamento unicameral de Angola, cujos deputados são eleitos pelos cidadãos." },
+    { pergunta: "Que data marca o início da luta armada contra o domínio colonial?", opcoes: ["4 de fevereiro de 1961", "11 de novembro de 1975", "1 de dezembro de 1976", "27 de maio de 1977"], resposta: 0, explicacao: "4 de fevereiro de 1961, data que é lembrada como o início da luta armada de libertação nacional." },
+    { pergunta: "Por que o ano de 1975 é tão importante na história angolana?", opcoes: ["Porque foi o ano em que a ONU foi criada", "Porque Angola conquistou a independência de Portugal e passou a ser um Estado soberano", "Porque terminou a guerra civil", "Porque foi o ano em que Angola entrou na CPLP"], resposta: 1, explicacao: "Em 1975 Angola conquistou a independência de Portugal e passou a ser um Estado soberano." },
+    { pergunta: "Que desafios surgiram depois da independência?", opcoes: ["Apenas a construção de estradas", "Entre eles a guerra civil, a deslocação de muitas famílias, a reconstrução do país e a criação de instituições nacionais", "A extinção de todas as cidades", "Nenhum desafio foi registado"], resposta: 1, explicacao: "Entre eles estiveram a guerra civil, a deslocação de muitas famílias, a reconstrução do país e a criação de instituições nacionais." },
+    { pergunta: "O que é a reconciliação nacional em Angola?", opcoes: ["A entrega de todo o poder ao Exército", "É o processo de aproximação entre antigos adversários e de recuperação da memória histórica, para fortalecer a paz", "O fim da moeda nacional", "A divisão do país em dois Estados"], resposta: 1, explicacao: "É o processo de aproximação entre antigos adversários e de recuperação da memória histórica, procurando fortalecer a paz e a convivência entre os cidadãos." },
+    { pergunta: "De onde vem o nome “Angola”?", opcoes: ["Do nome de um rio do Sul de Angola", "Do título Ngola, usado por governantes do antigo Reino do Ndongo", "Do nome de um navegador português", "De uma palavra da língua umbundu que significa «terra»"], resposta: 1, explicacao: "O nome deriva de Ngola, título usado por governantes do antigo Reino do Ndongo." },
+    { pergunta: "Quando Angola se tornou membro da Comunidade dos Países de Língua Portuguesa (CPLP)?", opcoes: ["Em 1975, logo após a independência", "Em 1996, como um dos países fundadores", "Em 2002, após o fim da guerra civil", "Em 2010, com a nova Constituição"], resposta: 1, explicacao: "Angola foi um dos países que fundaram a CPLP, em 1996." },
+    { pergunta: "O que é a SADC?", opcoes: ["Uma companhia petrolífera angolana", "A Comunidade de Desenvolvimento da África Austral, uma organização regional de cooperação económica e política", "Um tribunal internacional com sede em Luanda", "Um programa de ensino superior da CPLP"], resposta: 1, explicacao: "É a Comunidade de Desenvolvimento da África Austral, uma organização regional que promove cooperação económica e política entre países da África Austral." },
+    { pergunta: "Quais são algumas das línguas nacionais de Angola?", opcoes: ["Inglês, francês e espanhol", "Umbundu, kimbundu, kikongo, chokwe, kwanyama e nganguela", "Árabe, swahili e amárico", "Afrikaans, zulu e xhosa"], resposta: 1, explicacao: "Entre elas estão umbundu, kimbundu, kikongo, chokwe, kwanyama e nganguela." },
+    { pergunta: "O que são as línguas bantu faladas em Angola?", opcoes: ["Línguas de origem europeia trazidas no período colonial", "Línguas pertencentes à grande família linguística bantu, faladas em várias partes da África central, oriental e austral", "Línguas faladas apenas na costa de Angola", "Dialetos do português crioulo"], resposta: 1, explicacao: "São línguas pertencentes à grande família linguística bantu, faladas em várias partes da África central, oriental e austral." },
+    { pergunta: "Onde fica o deserto do Namibe?", opcoes: ["No nordeste de Angola, junto à fronteira com a Zâmbia", "No sudoeste de Angola, junto à costa atlântica", "No centro do país, na província do Huambo", "No norte, junto à fronteira com o Congo"], resposta: 1, explicacao: "No sudoeste de Angola, junto à costa atlântica. É uma das regiões áridas mais antigas do mundo." },
+    { pergunta: "O que é a Welwitschia mirabilis?", opcoes: ["Um animal marinho da costa angolana", "Uma planta muito resistente, característica do deserto do Namibe, que pode viver durante muitos séculos", "Um tipo de árvore da floresta de Cabinda", "Uma ave migratória do rio Kwanza"], resposta: 1, explicacao: "É uma planta muito resistente, característica do deserto do Namibe. Pode viver durante muitos séculos e é considerada um símbolo natural da região." },
+    { pergunta: "Que rio dá nome à moeda angolana?", opcoes: ["Rio Zambeze", "Rio Cuanza (Kwanza)", "Rio Okavango", "Rio Cunene"], resposta: 1, explicacao: "O rio Kwanza, um dos principais rios de Angola." },
+    { pergunta: "Que recursos naturais, além do petróleo, existem em Angola?", opcoes: ["Apenas ouro e prata", "Diamantes, ferro, cobre, fosfatos e recursos agrícolas e pesqueiros, entre outros", "Apenas carvão e urânio", "Nenhum outro recurso natural"], resposta: 1, explicacao: "O país possui, entre outros, diamantes, ferro, cobre, fosfatos e recursos agrícolas e pesqueiros." },
+    { pergunta: "Por que o Corredor do Lobito é estratégico?", opcoes: ["Porque é a principal rota aérea do país", "Porque liga o porto do Lobito ao interior da África Austral por caminho de ferro e pode facilitar o transporte de mercadorias entre países da região", "Porque é uma estrada turística na costa sul", "Porque é uma fronteira com a Namíbia"], resposta: 1, explicacao: "Porque liga o porto do Lobito ao interior da África Austral por caminho de ferro e pode facilitar o transporte de mercadorias entre países da região." },
+    { pergunta: "O que representa o emblema da bandeira angolana?", opcoes: ["A catana e a roda dentada representam a luta e o trabalho agrícola e industrial; a estrela simboliza a solidariedade internacional e o progresso", "Um mapa do território nacional", "As armas das Forças Armadas", "As três principais cidades do país"], resposta: 0, explicacao: "A catana e a roda dentada representam, entre outros elementos, a luta e o trabalho agrícola e industrial; a estrela simboliza a solidariedade internacional e o progresso." },
+    { pergunta: "Qual é o ponto mais alto de Angola?", opcoes: ["Morro do Moco, na província do Huambo, com cerca de 2.620 metros de altitude", "Monte Namuli, na província de Luanda", "Serra da Chela, na província de Benguela", "Morro do Lubango, na província do Namibe"], resposta: 0, explicacao: "O Morro do Moco, na província do Huambo, com cerca de 2.620 metros de altitude." },
+    { pergunta: "Com que países Angola faz fronteira?", opcoes: ["Com a Namíbia, a Zâmbia e a República Democrática do Congo; a província de Cabinda também faz fronteira com a República do Congo", "Com a África do Sul, o Botsuana e o Zimbabué", "Com o Gabão, a Guiné Equatorial e o Camarões", "Apenas com a Namíbia"], resposta: 0, explicacao: "Com a Namíbia, a Zâmbia e a República Democrática do Congo; a província de Cabinda também faz fronteira com a República do Congo." },
+    { pergunta: "Que floresta tropical se destaca em Cabinda?", opcoes: ["A floresta do Maiombe, conhecida pela biodiversidade e pelas árvores de grande porte", "A floresta da Serra da Leba", "A floresta do Mavinga", "Não existe floresta tropical em Cabinda"], resposta: 0, explicacao: "A floresta do Maiombe, conhecida pela biodiversidade e pelas árvores de grande porte." },
+    { pergunta: "O Estado angolano tem uma religião oficial?", opcoes: ["Sim, o catolicismo", "Sim, o protestantismo", "Não. Angola é um Estado laico, ou seja, não tem uma religião oficial", "Sim, as religiões tradicionais africanas"], resposta: 2, explicacao: "Não. Angola é um Estado laico, ou seja, não tem uma religião oficial." },
+    { pergunta: "Como se chama o parlamento angolano?", opcoes: ["Conselho de Estado", "Assembleia Nacional", "Congresso da República", "Tribunal de Contas"], resposta: 1, explicacao: "Assembleia Nacional. É o órgão legislativo do país." },
+    { pergunta: "Por que a preservação da memória histórica é importante para Angola?", opcoes: ["Porque serve apenas para celebrar datas festivas", "Ajuda a compreender a luta pela independência, os impactos da guerra civil e os caminhos de paz, reconciliação e desenvolvimento do país", "Porque obriga os cidadãos a viver no interior do país", "Porque substitui a educação formal"], resposta: 1, explicacao: "Ajuda a compreender a luta pela independência, os impactos da guerra civil e os caminhos de paz, reconciliação e desenvolvimento do país." },
+    { pergunta: "Quando Angola entrou para a ONU?", opcoes: ["11 de novembro de 1975", "1 de dezembro de 1976", "4 de abril de 2002", "27 de maio de 1977"], resposta: 1, explicacao: "Em 1 de dezembro de 1976, pouco mais de um ano depois da independência." },
+    { pergunta: "O que é o Caminho de Ferro de Benguela?", opcoes: ["Uma estrada nacional que liga Luanda a Cabinda", "Uma linha ferroviária histórica que liga o porto do Lobito ao interior de Angola e, através de ligações regionais, a países vizinhos", "Um aeroporto internacional na costa sul", "Uma rede de metro da capital"], resposta: 1, explicacao: "É uma linha ferroviária histórica que liga o porto do Lobito ao interior de Angola e, através de ligações regionais, a países vizinhos." },
+    { pergunta: "Que papel tem o porto do Lobito na economia?", opcoes: ["É um porto apenas para pesca artesanal", "É um dos principais portos do país e serve como ponto de entrada e saída de mercadorias para Angola e para regiões do interior da África Austral", "Está encerrado desde a independência", "É um porto exclusivamente militar"], resposta: 1, explicacao: "É um dos principais portos do país e serve como ponto de entrada e saída de mercadorias para Angola e para regiões do interior da África Austral." },
+    { pergunta: "Onde vive a palanca-negra-gigante?", opcoes: ["No deserto do Namibe", "Na floresta do Maiombe, em Cabinda", "Na região de Cangandala, na província de Malanje, e áreas próximas", "Na Serra da Chela, na província da Huíla"], resposta: 2, explicacao: "É nativa de Angola e está especialmente associada à região de Cangandala e às áreas próximas, na província de Malanje." },
+    { pergunta: "Que data é celebrada como Dia dos Heróis Nacionais em Angola?", opcoes: ["11 de novembro", "17 de setembro", "4 de fevereiro", "1 de dezembro"], resposta: 1, explicacao: "17 de setembro, data de nascimento de Agostinho Neto." },
+    { pergunta: "Quais são as cores da bandeira de Angola?", opcoes: ["Verde, branco e azul", "Vermelho, preto e amarelo", "Azul, branco e vermelho", "Verde, amarelo e preto"], resposta: 1, explicacao: "Vermelho, preto e amarelo. A bandeira também tem uma catana, uma roda dentada e uma estrela no centro." },
+    { pergunta: "Quando foi adotada a bandeira atual de Angola?", opcoes: ["Em 11 de novembro de 1975, no dia da independência", "Em 4 de abril de 2002", "Em 1 de dezembro de 1976", "Em 25 de abril de 1974"], resposta: 0, explicacao: "Em 11 de novembro de 1975, no dia da independência." },
+    { pergunta: "Quando foi adotado o hino nacional “Angola Avante”?", opcoes: ["Em 1961, com o início da luta armada", "Em 1975, com a proclamação da independência", "Em 1992, com a criação da SADC", "Em 2002, com o fim da guerra civil"], resposta: 1, explicacao: "Em 1975, com a proclamação da independência." },
+    { pergunta: "Que reino tinha Mbanza Kongo como capital?", opcoes: ["Reino do Ndongo", "Reino do Kongo", "Reino do Lunda", "Reino do Matamba"], resposta: 1, explicacao: "O Reino do Kongo, uma das formações políticas mais importantes da África central antes do domínio colonial." },
+    { pergunta: "Quantos mandatos presidenciais consecutivos permite a Constituição atual?", opcoes: ["Um mandato de sete anos", "Até dois mandatos de cinco anos", "Quatro mandatos de cinco anos", "Não há limite de mandatos"], resposta: 1, explicacao: "Permite até dois mandatos de cinco anos." },
+    { pergunta: "O que é a Assembleia Nacional?", opcoes: ["O tribunal supremo do país", "O parlamento angolano, unicameral, que aprova leis e fiscaliza a ação do Estado", "O conselho que auxilia o Presidente", "O órgão que administra a justiça"], resposta: 1, explicacao: "É o parlamento angolano, unicameral e composto por 220 deputados. Aprova leis, aprecia o Orçamento Geral do Estado e fiscaliza determinadas ações do Estado, conforme a Constituição e a lei." },
+    { pergunta: "Quem escreveu a letra do hino “Angola Avante”?", opcoes: ["Rui Mingas, autor da letra", "Manuel Rui Monteiro, autor da letra; a música foi composta por Rui Mingas", "Agostinho Neto, autor da letra e da música", "Manuel Rui Monteiro, autor da letra e da música"], resposta: 1, explicacao: "A letra é de Manuel Rui Monteiro; a música foi composta por Rui Mingas." },
+    { pergunta: "Que organização regional substituiu a SADCC?", opcoes: ["A SADC, criada em 1992 para aprofundar a integração e a cooperação regional", "A CPLP, criada em 1996", "A UNITA, criada em 1966", "A ONU, criada em 1945"], resposta: 0, explicacao: "A SADC, criada em 1992 para aprofundar a integração e a cooperação regional." },
+    { pergunta: "Qual é a importância de Angola na SADC?", opcoes: ["Angola não participa na SADC", "Angola participa na cooperação regional em áreas como comércio, transportes, energia, segurança e desenvolvimento", "Angola só participa em questões de defesa", "Angola dirige a SADC desde a sua criação"], resposta: 1, explicacao: "Angola participa na cooperação regional em áreas como comércio, transportes, energia, segurança e desenvolvimento." },
+    { pergunta: "Quais são os órgãos de soberania de Angola?", opcoes: ["O Presidente da República, a Assembleia Nacional e os Tribunais", "O Presidente, o Conselho de Ministros e a CPLP", "A Assembleia Nacional, o Governo e as Forças Armadas", "O Presidente, o Vice-Presidente e o Tribunal Constitucional"], resposta: 0, explicacao: "Segundo a Constituição, são três: o Presidente da República, a Assembleia Nacional e os Tribunais." },
+    { pergunta: "Quem é o Chefe de Estado e titular do Poder Executivo?", opcoes: ["O primeiro-ministro", "O Presidente da República", "O presidente da Assembleia Nacional", "O Vice-Presidente"], resposta: 1, explicacao: "É o Presidente da República. Em outubro de 2026, o Presidente é João Lourenço." },
+    { pergunta: "Angola tem primeiro-ministro?", opcoes: ["Sim, o primeiro-ministro é nomeado pela Assembleia Nacional", "Sim, o primeiro-ministro é o Vice-Presidente", "Não. No modelo constitucional atual, o Presidente dirige o Poder Executivo; não existe o cargo de primeiro-ministro", "Sim, o primeiro-ministro é eleito diretamente pelo povo"], resposta: 2, explicacao: "Não. No modelo constitucional atual, o Presidente dirige o Poder Executivo; não existe o cargo de primeiro-ministro." },
+    { pergunta: "Quem auxilia o Presidente no exercício do Poder Executivo?", opcoes: ["Apenas o Chefe do Estado-Maior", "O Vice-Presidente da República, os Ministros de Estado e os Ministros", "Os juízes do Tribunal Constitucional", "Apenas os governadores provinciais"], resposta: 1, explicacao: "O Vice-Presidente da República, os Ministros de Estado e os Ministros. Também podem existir Secretários de Estado e Vice-Ministros." },
+    { pergunta: "Quem é a Vice-Presidente da República?", opcoes: ["Esperança da Costa", "O Presidente da Assembleia Nacional", "O Procurador-Geral da República", "O Presidente do Tribunal Supremo"], resposta: 0, explicacao: "Em outubro de 2026, é Esperança da Costa. Entre as suas funções constitucionais está auxiliar o Presidente e substituí-lo nas situações previstas na Constituição." },
+    { pergunta: "Como são escolhidos o Presidente e o Vice-Presidente?", opcoes: ["Por votação direta separada para cada cargo", "Os eleitores votam nas listas dos partidos ou coligações; o cabeça de lista do partido mais votado torna-se Presidente e o número dois dessa lista torna-se Vice-Presidente", "O Presidente é escolhido pela Assembleia Nacional", "O Presidente é sorteado entre os deputados"], resposta: 1, explicacao: "Os eleitores votam nas listas dos partidos ou coligações nas eleições gerais. O cabeça de lista do partido mais votado torna-se Presidente, e o número dois dessa lista torna-se Vice-Presidente." },
+    { pergunta: "O que é o Conselho de Ministros?", opcoes: ["Um tribunal de recurso", "Um órgão que auxilia o Presidente na formulação e execução das políticas gerais do país e da Administração Pública, presidido pelo Presidente da República", "Uma assembleia dos governadores provinciais", "Um órgão de polícia nacional"], resposta: 1, explicacao: "É um órgão que auxilia o Presidente na formulação e execução das políticas gerais do país e da Administração Pública. É presidido pelo Presidente da República." },
+    { pergunta: "Quem faz parte do Conselho de Ministros?", opcoes: ["Apenas os deputados eleitos", "O Presidente da República, o Vice-Presidente, os Ministros de Estado e os Ministros", "Os juízes do Tribunal Supremo", "Os chefes das províncias"], resposta: 1, explicacao: "O Presidente da República, o Vice-Presidente, os Ministros de Estado e los Ministros. Secretários de Estado e Vice-Ministros podem ser convidados a participar." },
+    { pergunta: "Qual é a função dos ministérios?", opcoes: ["Cada ministério administra uma área da governação, como saúde, educação, finanças ou transportes, e executa as políticas do Executivo nesse setor", "Os ministérios são tribunais especializados", "Os ministérios são empresas públicas de petróleo", "Os ministérios são as províncias do país"], resposta: 0, explicacao: "Cada ministério administra uma área da governação — como saúde, educação, finanças ou transportes — e executa as políticas e decisões do Executivo nesse setor." },
+    { pergunta: "Como são eleitos os deputados?", opcoes: ["Por nomeação do Presidente", "Por sufrágio universal, direto e secreto, através de listas partidárias e de um sistema de representação proporcional", "Por sorteio entre os cidadãos", "Apenas pelos militares"], resposta: 1, explicacao: "São eleitos por sufrágio universal, direto e secreto, através de listas partidárias e de um sistema de representação proporcional." },
+    { pergunta: "Que função têm os Tribunais?", opcoes: ["Administram a justiça, resolvem conflitos e protegem os direitos e interesses legalmente reconhecidos", "Apenas emitem passaportes", "Fazem parte do Governo e são nomeados pelo Conselho de Ministros", "Apenas fiscalizam o trânsito"], resposta: 0, explicacao: "Administram a justiça, resolvem conflitos e protegem os direitos e interesses legalmente reconhecidos. A Constituição estabelece que são independentes e imparciais." },
+    { pergunta: "Qual é a província mais a norte de Angola, separada do território principal?", opcoes: ["Zaire", "Uíge", "Cabinda", "Lunda Norte"], resposta: 2, explicacao: "Cabinda. É um enclave entre a República do Congo e a República Democrática do Congo, junto ao oceano Atlântico. A capital é Cabinda." }
+  ];
+
+  // ==========================================================
+  // CONFIGURAÇÃO E ESTADO
+  // ==========================================================
+  const PERGUNTAS_GRATIS = 8;
+  const EMAIL_ADMIN = "netn6436@gmail.com";
+  const PAGAMENTO_ENTIDADE = "10116";
+  const PAGAMENTO_REFERENCIA = "936188265";
+  const PAGAMENTO_VALOR = "1000 Kz";
+
+  const ECRAS_COM_BOTAO_FLUTUANTE = ["ecra-inicio", "ecra-quiz", "ecra-resultado", "ecra-conta"];
+
+  const quizzes = {
+    policia: { titulo: "Quiz: Perguntas da Polícia", perguntas: perguntasPolicia },
+    cultura: { titulo: "Quiz: Cultura Geral de Angola", perguntas: perguntasCultura }
+  };
+
+  let quizAtual = null;
+  let indice = 0;
+  let pontos = 0;
+  let respondida = false;
+
+  document.getElementById("badge-policia").textContent = perguntasPolicia.length + " perguntas";
+  document.getElementById("badge-cultura").textContent = perguntasCultura.length + " perguntas";
+
+  const $ = (id) => document.getElementById(id);
+
+  let modalCallback = null;
+  function mostrarModal(mensagem, callback) {
+    $("modal-texto").textContent = mensagem;
+    modalCallback = callback || null;
+    $("modal-overlay").classList.remove("oculto");
+    $("modal-ok").focus();
+  }
+  function fecharModal(executar) {
+    $("modal-overlay").classList.add("oculto");
+    const cb = modalCallback;
+    modalCallback = null;
+    if (executar && cb) cb();
+  }
+
+  function actualizarBotaoFlutuante(idEcra) {
+    const fb = $("chat-flutuante");
+    const deveMostrar =
+      ECRAS_COM_BOTAO_FLUTUANTE.includes(idEcra) &&
+      utilizadorAtual &&
+      !isAdmin(utilizadorAtual);
+
+    if (deveMostrar) {
+      fb.classList.remove("oculto");
+      actualizarBadges();
+    } else {
+      fb.classList.add("oculto");
+    }
+  }
+
+  function mostrarEcra(id) {
+    ["ecra-inicio", "ecra-quiz", "ecra-resultado", "ecra-auth", "ecra-conta", "ecra-admin", "ecra-chat"].forEach(e => $(e).classList.add("oculto"));
+    $(id).classList.remove("oculto");
+    actualizarBotaoFlutuante(id);
+    if (id !== "ecra-quiz") pararVoz();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function perguntasDoQuiz(tipo) {
+    const todas = quizzes[tipo].perguntas;
+    if (utilizadorAtual && utilizadorAtual.premium) return todas;
+    return todas.slice(0, PERGUNTAS_GRATIS);
+  }
+
+  function iniciarQuiz(tipo) {
+    if (!utilizadorAtual) {
+      tipoPendente = tipo;
+      mostrarAuth();
+      return;
+    }
+    const lista = perguntasDoQuiz(tipo);
+    quizAtual = {
+      tipo: tipo,
+      titulo: quizzes[tipo].titulo,
+      perguntas: lista,
+      premium: !!utilizadorAtual.premium
+    };
+    indice = 0;
+    pontos = 0;
+    mostrarEcra("ecra-quiz");
+    mostrarPergunta();
+  }
+
+  function mostrarPergunta() {
+    respondida = false;
+    const perguntas = quizAtual.perguntas;
+    const p = perguntas[indice];
+
+    let contadorTxt = "Pergunta " + (indice + 1) + " de " + perguntas.length;
+    if (!quizAtual.premium) contadorTxt += " · Gratuita";
+    $("contador").textContent = contadorTxt;
+
+    $("barra").style.width = ((indice) / perguntas.length * 100) + "%";
+    $("pergunta").textContent = p.pergunta;
+    $("explicacao").classList.add("oculto");
+    $("explicacao").innerHTML = "";
+    $("btn-seguinte").disabled = true;
+    $("btn-seguinte").textContent = (indice === perguntas.length - 1) ? "Ver resultado" : "Seguinte →";
+
+    const opcoesEl = $("opcoes");
+    opcoesEl.innerHTML = "";
+    p.opcoes.forEach((texto, i) => {
+      const btn = document.createElement("button");
+      btn.className = "opcao";
+      btn.textContent = texto;
+      btn.onclick = () => responder(i);
+      opcoesEl.appendChild(btn);
+    });
+    if (vozAtiva) falar(textoPergunta(p));
+  }
+
+  function responder(escolha) {
+    if (respondida) return;
+    respondida = true;
+
+    const p = quizAtual.perguntas[indice];
+    const botoes = document.querySelectorAll("#opcoes .opcao");
+    botoes.forEach(b => b.disabled = true);
+
+    if (escolha === p.resposta) {
+      pontos++;
+      botoes[escolha].classList.add("correta");
+    } else {
+      botoes[escolha].classList.add("errada");
+      botoes[p.resposta].classList.add("correta");
+    }
+
+    const expl = $("explicacao");
+    expl.innerHTML = "<strong>" + (escolha === p.resposta ? "✔ Correto! " : "✘ Errado. ") + "</strong>" + p.explicacao;
+    expl.classList.remove("oculto");
+
+    $("btn-seguinte").disabled = false;
+    if (vozAtiva) falar((escolha === p.resposta ? "Correto. " : "Errado. ") + p.explicacao);
+  }
+
+  function proximaPergunta() {
+    if (!respondida) return;
+    indice++;
+    if (indice < quizAtual.perguntas.length) {
+      mostrarPergunta();
+    } else {
+      mostrarResultado();
+    }
+  }
+
+  function mostrarResultado() {
+    const total = quizAtual.perguntas.length;
+    const percentagem = Math.round((pontos / total) * 100);
+    $("barra").style.width = "100%";
+    $("pontuacao").textContent = pontos + " / " + total + "  (" + percentagem + "%)";
+
+    let mensagem;
+    if (percentagem >= 80) mensagem = "Excelente! Está muito bem preparado(a). Continue assim! 🎉";
+    else if (percentagem >= 50) mensagem = "Bom trabalho! Reveja as respostas erradas e tente novamente.";
+    else mensagem = "Não desista! Estude o material e volte a fazer o quiz. 💪";
+    $("mensagem").textContent = mensagem;
+    if (vozAtiva) falar("Pontuação: " + pontos + " em " + total + ". " + mensagem);
+
+    const upsell = $("resultado-upsell");
+    if (!quizAtual.premium) upsell.classList.remove("oculto");
+    else upsell.classList.add("oculto");
+
+    $("btn-repetir").onclick = confirmarRepetir;
+    mostrarEcra("ecra-resultado");
+  }
+
+  const MSG_REPETIR = "Vais repetir as mesmas perguntas, 8 sobre polícia e 8 sobre cultura geral.";
+
+  function confirmarRepetir() {
+    if (!quizAtual) return;
+    if (!utilizadorAtual || utilizadorAtual.premium) {
+      iniciarQuiz(quizAtual.tipo);
+      return;
+    }
+    mostrarModal(MSG_REPETIR, () => iniciarQuiz(quizAtual.tipo));
+  }
+
+  function confirmarOutroQuiz() {
+    if (!utilizadorAtual || utilizadorAtual.premium) {
+      voltarConta();
+      return;
+    }
+    mostrarModal(MSG_REPETIR, () => voltarConta());
+  }
+
+  function irParaPagamento() {
+    if (!utilizadorAtual) return mostrarAuth();
+    mostrarConta();
+    setTimeout(() => {
+      const el = $("premium-cta");
+      if (el && !el.classList.contains("oculto")) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 200);
+  }
+
+  const CHAVE_SESSAO = "quizAngola_sessao";
+  let cacheUtilizadores = [];
+  let cacheMensagens = [];
+  let utilizadorAtual = null;
+  let tipoPendente = null;
+  let modoAuth = "registo";
+
+  // Funções de Persistência com Firebase Realtime Database
+  function salvarUtilizadorFirebase(u) {
+    const userRef = ref(db, 'utilizadores/' + u.numero);
+    set(userRef, u).catch(err => console.error("Erro ao salvar utilizador:", err));
+  }
+
+  function atualizarUtilizadorFirebase(numero, dados) {
+    const userRef = ref(db, 'utilizadores/' + numero);
+    update(userRef, dados).catch(err => console.error("Erro ao atualizar utilizador:", err));
+  }
+
+  function enviarMensagemFirebase(msg) {
+    const msgRef = ref(db, 'mensagens/' + msg.id);
+    set(msgRef, msg).catch(err => console.error("Erro ao enviar mensagem:", err));
+  }
+
+  function atualizarMensagemFirebase(id, dados) {
+    const msgRef = ref(db, 'mensagens/' + id);
+    update(msgRef, dados).catch(err => console.error("Erro ao atualizar mensagem:", err));
+  }
+
+  function removerMensagemFirebase(id) {
+    const msgRef = ref(db, 'mensagens/' + id);
+    remove(msgRef).catch(err => console.error("Erro ao remover mensagem:", err));
+  }
+
+  function guardarSessao(u) {
+    utilizadorAtual = u;
+    try {
+      if (u) localStorage.setItem(CHAVE_SESSAO, u.numero);
+      else localStorage.removeItem(CHAVE_SESSAO);
+    } catch (e) {}
+    actualizarSessaoUI();
+  }
+
+  function carregarSessao() {
+    try {
+      const numero = localStorage.getItem(CHAVE_SESSAO);
+      if (numero) {
+        const u = cacheUtilizadores.find(x => x.numero === numero);
+        if (u) utilizadorAtual = u;
+      }
+    } catch (e) {}
+    actualizarSessaoUI();
+  }
+
+  function actualizarSessaoUI() {
+    if (utilizadorAtual) {
+      $("sessao-nome").textContent = "Sessão iniciada: " + utilizadorAtual.nome;
+      $("sessao").classList.remove("oculto");
+    } else {
+      $("sessao").classList.add("oculto");
+    }
+  }
+
+  function normalizarNumero(texto) {
+    let s = texto.replace(/[\s\-]/g, "");
+    if (s.startsWith("+244")) s = s.slice(4);
+    else if (s.startsWith("00244")) s = s.slice(5);
+    return s;
+  }
+
+  function numeroValido(s) { return /^9\d{8}$/.test(s); }
+
+  function aplicarModoAuth() {
+    const reg = modoAuth === "registo";
+    $("auth-titulo").textContent = reg ? "Criar conta" : "Entrar";
+    $("auth-sub").textContent = reg
+      ? "Registe-se para poder exercitar."
+      : "Introduza o seu número e senha para continuar.";
+    $("campo-nome").classList.toggle("oculto", !reg);
+    $("auth-btn").textContent = reg ? "Registar e continuar" : "Entrar";
+    $("auth-troca").textContent = reg ? "Já tenho conta — entrar" : "Não tenho conta — registar";
+  }
+
+  function mostrarAuth() {
+    modoAuth = "registo";
+    aplicarModoAuth();
+    $("auth-nome").value = "";
+    $("auth-numero").value = "";
+    $("auth-senha").value = "";
+    $("auth-erro").classList.add("oculto");
+    mostrarEcra("ecra-auth");
+  }
+
+  function alternarAuth() {
+    modoAuth = modoAuth === "registo" ? "login" : "registo";
+    $("auth-erro").classList.add("oculto");
+    aplicarModoAuth();
+  }
+
+  function mostrarErroAuth(msg) {
+    $("auth-erro").textContent = msg;
+    $("auth-erro").classList.remove("oculto");
+  }
+
+  function submeterAuth() {
+    const nome = $("auth-nome").value.trim();
+    const num = normalizarNumero($("auth-numero").value.trim());
+    const senha = $("auth-senha").value;
+
+    if (modoAuth === "registo") {
+      if (nome.length < 3) return mostrarErroAuth("Introduza o seu nome completo (mínimo 3 letras).");
+      if (!numeroValido(num)) return mostrarErroAuth("Introduza um número angolano válido: 9 dígitos, começando por 9.");
+      if (senha.length < 4) return mostrarErroAuth("A senha deve ter pelo menos 4 caracteres.");
+      if (cacheUtilizadores.some(u => u.numero === num)) return mostrarErroAuth("Este número já está registado. Entre com a sua senha.");
+      const novo = { nome: nome, numero: num, senha: senha, premium: false, pendente: false };
+      salvarUtilizadorFirebase(novo);
+      guardarSessao(novo);
+    } else {
+      if (!numeroValido(num)) return mostrarErroAuth("Introduza um número angolano válido: 9 dígitos, começando por 9.");
+      const u = cacheUtilizadores.find(x => x.numero === num);
+      if (!u || u.senha !== senha) return mostrarErroAuth("Número ou senha incorretos.");
+      guardarSessao(u);
+    }
+
+    $("auth-erro").classList.add("oculto");
+    if (tipoPendente) {
+      const t = tipoPendente;
+      tipoPendente = null;
+      iniciarQuiz(t);
+    } else {
+      mostrarConta();
+    }
+  }
+
+  function terminarSessao() {
+    guardarSessao(null);
+    voltarInicio();
+  }
+
+  let vozAtiva = true;
+  let vozPT = null;
+  const suportaVoz = ("speechSynthesis" in window);
+
+  function escolherVozPT() {
+    if (!suportaVoz) return;
+    const vs = speechSynthesis.getVoices();
+    vozPT = vs.find(v => /^pt-AO/i.test(v.lang))
+         || vs.find(v => /^pt-PT/i.test(v.lang))
+         || vs.find(v => /^pt/i.test(v.lang))
+         || null;
+  }
+
+  if (suportaVoz) {
+    escolherVozPT();
+    speechSynthesis.onvoiceschanged = escolherVozPT;
+  } else {
+    $("btn-ouvir").classList.add("oculto");
+    $("btn-voz").classList.add("oculto");
+  }
+
+  function falar(texto) {
+    if (!suportaVoz) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(texto);
+    if (vozPT) { u.voice = vozPT; u.lang = vozPT.lang; }
+    else { u.lang = "pt-PT"; }
+    u.rate = 0.95;
+    speechSynthesis.speak(u);
+  }
+
+  function pararVoz() { if (suportaVoz) speechSynthesis.cancel(); }
+
+  function textoPergunta(p) {
+    let t = p.pergunta + ". ";
+    p.opcoes.forEach((o, i) => { t += "Opção " + "ABCD"[i] + ": " + o + ". "; });
+    return t;
+  }
+
+  function ouvirPergunta() {
+    if (!quizAtual) return;
+    falar(textoPergunta(quizAtual.perguntas[indice]));
+  }
+
+  function alternarVoz() {
+    vozAtiva = !vozAtiva;
+    if (!vozAtiva) pararVoz();
+    const b = $("btn-voz");
+    b.textContent = vozAtiva ? "Voz ligada" : "Voz desligada";
+    b.setAttribute("aria-pressed", vozAtiva ? "true" : "false");
+  }
+
+  function formatarNumero(n) {
+    return n.replace(/^(\d{3})(\d{3})(\d{3})$/, "$1 $2 $3");
+  }
+
+  function mostrarConta() {
+    if (!utilizadorAtual) return mostrarAuth();
+    if (isAdmin(utilizadorAtual)) return mostrarAdmin();
+
+    const u = cacheUtilizadores.find(x => x.numero === utilizadorAtual.numero) || utilizadorAtual;
+    utilizadorAtual = u;
+
+    $("conta-titulo").textContent = "Olá, " + u.nome + "!";
+    $("conta-dados").textContent = "Número: +244 " + formatarNumero(u.numero);
+
+    const statusEl = $("conta-premium-status");
+    const ctaEl = $("premium-cta");
+    const ativoEl = $("premium-ativo");
+    const pendEl = $("premium-pendente");
+
+    if (u.premium) {
+      statusEl.innerHTML = '<span class="selo-premium">✓ Acesso completo</span>';
+      ctaEl.classList.add("oculto");
+      ativoEl.classList.remove("oculto");
+      pendEl.classList.add("oculto");
+      $("badge-conta-policia").textContent = perguntasPolicia.length + " perguntas";
+      $("badge-conta-cultura").textContent = perguntasCultura.length + " perguntas";
+    } else if (u.pendente) {
+      statusEl.innerHTML = '<span class="selo-pendente">⏳ Pagamento em análise</span>';
+      ctaEl.classList.add("oculto");
+      ativoEl.classList.add("oculto");
+      pendEl.classList.remove("oculto");
+      $("badge-conta-policia").textContent = PERGUNTAS_GRATIS + " de " + perguntasPolicia.length + " grátis";
+      $("badge-conta-cultura").textContent = PERGUNTAS_GRATIS + " de " + perguntasCultura.length + " grátis";
+    } else {
+      statusEl.innerHTML = '<span class="selo-gratis">Versão gratuita · 16 perguntas</span>';
+      ctaEl.classList.remove("oculto");
+      ativoEl.classList.add("oculto");
+      pendEl.classList.add("oculto");
+      $("badge-conta-policia").textContent = PERGUNTAS_GRATIS + " de " + perguntasPolicia.length + " grátis";
+      $("badge-conta-cultura").textContent = PERGUNTAS_GRATIS + " de " + perguntasCultura.length + " grátis";
+    }
+
+    actualizarBadges();
+    mostrarEcra("ecra-conta");
+  }
+
+  function voltarConta() {
+    if (utilizadorAtual) mostrarConta();
+    else voltarInicio();
+  }
+
+  const ADMIN_NUM = "949097324";
+  const ADMIN_SENHA = "199319931993";
+  let chatOutro = null;
+  let chatOrigem = "conta";
+  let chatAssinatura = "";
+
+  function isAdmin(u) { return !!(u && u.admin); }
+
+  function garantirAdmin() {
+    const admin = { nome: "Administração", numero: ADMIN_NUM, senha: ADMIN_SENHA, admin: true, premium: true, pendente: false };
+    const adminRef = ref(db, 'utilizadores/' + ADMIN_NUM);
+    get(adminRef).then((snapshot) => {
+      if (!snapshot.exists()) {
+        set(adminRef, admin);
+      }
+    });
+  }
+
+  function meuNumero() { return utilizadorAtual ? utilizadorAtual.numero : null; }
+
+  function naoLidasDe(meu, de) {
+    return cacheMensagens.filter(m =>
+      m.para === meu && m.de === de && !m.lida && !(m.apagadaPor || []).includes(meu)
+    ).length;
+  }
+
+  function totalNaoLidas(meu) {
+    return cacheMensagens.filter(m =>
+      m.para === meu && !m.lida && !(m.apagadaPor || []).includes(meu)
+    ).length;
+  }
+
+  function formatarData(iso) {
+    try {
+      return new Date(iso).toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    } catch (e) { return ""; }
+  }
+
+  function actualizarBadges() {
+    if (!utilizadorAtual || isAdmin(utilizadorAtual)) return;
+    const n = totalNaoLidas(meuNumero());
+    const bm = $("badge-msg");
+    if (bm) bm.textContent = n > 0 ? "(" + n + ")" : "";
+    const bf = $("badge-flutuante");
+    if (bf) {
+      if (n > 0) {
+        bf.textContent = n > 9 ? "9+" : String(n);
+        bf.classList.remove("oculto");
+      } else {
+        bf.classList.add("oculto");
+      }
+    }
+  }
+
+  function mostrarAdmin() {
+    if (!utilizadorAtual) return mostrarAuth();
+    renderAdmin();
+    mostrarEcra("ecra-admin");
+  }
+
+  function renderAdmin() {
+    const users = cacheUtilizadores.filter(u => !u.admin);
+    $("admin-total").textContent = users.length;
+    const ul = $("admin-lista");
+    ul.innerHTML = "";
+    if (!users.length) {
+      const li = document.createElement("li");
+      li.className = "item-lista";
+      li.textContent = "Ainda não há utilizadores registados.";
+      ul.appendChild(li);
+      return;
+    }
+    users.forEach(u => {
+      const li = document.createElement("li");
+      li.className = "item-lista";
+
+      const info = document.createElement("div");
+      info.style.flex = "1 1 200px";
+      let selo;
+      if (u.premium) selo = ' <span class="selo-premium" style="margin:0;padding:2px 8px;font-size:0.72rem;">✓ Premium</span>';
+      else if (u.pendente) selo = ' <span class="selo-pendente" style="margin:0;padding:2px 8px;font-size:0.72rem;">⏳ Pendente</span>';
+      else selo = ' <span class="selo-gratis" style="margin:0;padding:2px 8px;font-size:0.72rem;">Grátis</span>';
+      info.innerHTML = u.nome + " — +244 " + formatarNumero(u.numero) + selo;
+
+      const acoes = document.createElement("div");
+      acoes.style.display = "flex";
+      acoes.style.gap = "8px";
+      acoes.style.flexWrap = "wrap";
+      acoes.style.alignItems = "center";
+
+      const n = naoLidasDe(ADMIN_NUM, u.numero);
+      const btnMsg = document.createElement("button");
+      btnMsg.className = "btn-secundario btn-pequeno";
+      btnMsg.textContent = "Mensagens" + (n > 0 ? " (" + n + ")" : "");
+      btnMsg.onclick = () => abrirChatCom(u.numero);
+      acoes.appendChild(btnMsg);
+
+      if (u.premium) {
+        const btnDesc = document.createElement("button");
+        btnDesc.className = "btn-secundario btn-pequeno";
+        btnDesc.textContent = "Desativar premium";
+        btnDesc.onclick = () => desativarPremium(u.numero);
+        acoes.appendChild(btnDesc);
+      } else if (u.pendente) {
+        const btnAprovar = document.createElement("button");
+        btnAprovar.className = "btn-principal btn-pequeno";
+        btnAprovar.textContent = "✓ Aprovar pagamento";
+        btnAprovar.onclick = () => aprovarPagamento(u.numero);
+        acoes.appendChild(btnAprovar);
+
+        const btnRejeitar = document.createElement("button");
+        btnRejeitar.className = "btn-link";
+        btnRejeitar.style.fontSize = "0.8rem";
+        btnRejeitar.textContent = "Rejeitar pedido";
+        btnRejeitar.onclick = () => rejeitarPedido(u.numero);
+        acoes.appendChild(btnRejeitar);
+      } else {
+        const btnAtivar = document.createElement("button");
+        btnAtivar.className = "btn-secundario btn-pequeno";
+        btnAtivar.textContent = "Ativar premium";
+        btnAtivar.onclick = () => aprovarPagamento(u.numero);
+        acoes.appendChild(btnAtivar);
+      }
+
+      li.appendChild(info);
+      li.appendChild(acoes);
+      ul.appendChild(li);
+    });
+  }
+
+  function aprovarPagamento(numero) {
+    atualizarUtilizadorFirebase(numero, { premium: true, pendente: false });
+    if (utilizadorAtual && utilizadorAtual.numero === numero) {
+      utilizadorAtual.premium = true;
+      utilizadorAtual.pendente = false;
+    }
+    setTimeout(renderAdmin, 300);
+  }
+
+  function desativarPremium(numero) {
+    if (!confirm("Desativar o acesso premium deste utilizador?")) return;
+    atualizarUtilizadorFirebase(numero, { premium: false, pendente: false });
+    if (utilizadorAtual && utilizadorAtual.numero === numero) {
+      utilizadorAtual.premium = false;
+      utilizadorAtual.pendente = false;
+    }
+    setTimeout(renderAdmin, 300);
+  }
+
+  function rejeitarPedido(numero) {
+    if (!confirm("Rejeitar o pedido de desbloqueio deste utilizador?")) return;
+    atualizarUtilizadorFirebase(numero, { pendente: false });
+    if (utilizadorAtual && utilizadorAtual.numero === numero) {
+      utilizadorAtual.pendente = false;
+    }
+    setTimeout(renderAdmin, 300);
+  }
+
+  function abrirChatAdmin() {
+    if (!utilizadorAtual) return mostrarAuth();
+    chatOutro = ADMIN_NUM;
+    chatOrigem = "conta";
+    $("chat-titulo").textContent = "Administração";
+    $("chat-voltar").textContent = "← Voltar";
+    mostrarEcra("ecra-chat");
+    renderChat(true);
+  }
+
+  function abrirChatCom(numero) {
+    const u = cacheUtilizadores.find(x => x.numero === numero);
+    if (!u) return;
+    chatOutro = numero;
+    chatOrigem = "admin";
+    $("chat-titulo").textContent = "Conversa com " + u.nome;
+    $("chat-voltar").textContent = "← Painel";
+    mostrarEcra("ecra-chat");
+    renderChat(true);
+  }
+
+  function voltarDoChat() {
+    if (chatOrigem === "admin") mostrarAdmin();
+    else mostrarConta();
+  }
+
+  function construirEmail(dest, assunto, corpo) {
+    const a = encodeURIComponent(assunto);
+    const b = encodeURIComponent(corpo);
+    return "mailto:" + dest + "?subject=" + a + "&body=" + b;
+  }
+
+  function corpoEmailDesbloqueio() {
+    const nome = utilizadorAtual ? utilizadorAtual.nome : "(sem nome)";
+    const numero = utilizadorAtual ? formatarNumero(utilizadorAtual.numero) : "(sem número)";
+    return (
+      "Olá administração,\n\n" +
+      "Solicito o desbloqueio do acesso completo aos quizzes do site MININT.\n\n" +
+      "=== DADOS PESSOAIS ===\n" +
+      "Nome: " + nome + "\n" +
+      "Número: +244 " + numero + "\n\n" +
+      "=== DADOS DO PAGAMENTO EFETUADO ===\n" +
+      "Entidade: PayPay " + PAGAMENTO_ENTIDADE + "\n" +
+      "Referência: " + PAGAMENTO_REFERENCIA + "\n" +
+      "Valor: " + PAGAMENTO_VALOR + "\n" +
+      "Data do pagamento: (preencher)\n\n" +
+      "=== COMPROVATIVO ===\n" +
+      "Anexei o talão de comprovativo do ATM Multicaixa (ou do aplicativo Express) a este email.\n\n" +
+      "Após confirmação, peço que ativem o acesso completo às 154 perguntas.\n\n" +
+      "Obrigado(a).\n" +
+      nome
+    );
+  }
+
+  function solicitarDesbloqueio() {
+    if (!utilizadorAtual) return mostrarAuth();
+
+    if (!utilizadorAtual.premium) {
+      atualizarUtilizadorFirebase(utilizadorAtual.numero, { pendente: true });
+      utilizadorAtual.pendente = true;
+    }
+
+    const assunto = "Solicitação de Desbloqueio - " + utilizadorAtual.nome;
+    const corpo = corpoEmailDesbloqueio();
+    window.location.href = construirEmail(EMAIL_ADMIN, assunto, corpo);
+
+    mostrarModal(
+      "Abrimos o seu email com os dados já preenchidos. " +
+      "Anexe o talão de comprovativo e envie para " + EMAIL_ADMIN + ". " +
+      "O acesso será desbloqueado após a administração confirmar o pagamento.",
+      () => { mostrarConta(); }
+    );
+  }
+
+  function reabrirEmail() {
+    if (!utilizadorAtual) return mostrarAuth();
+    const assunto = "Reenvio de Comprovativo - " + utilizadorAtual.nome;
+    const corpo = corpoEmailDesbloqueio();
+    window.location.href = construirEmail(EMAIL_ADMIN, assunto, corpo);
+  }
+
+  function renderChat(forcar) {
+    if (!utilizadorAtual || !chatOutro) return;
+    const eu = meuNumero();
+    let mudou = false;
     
-    <!-- Menu Principal -->
-    <div class="menu">
-        <button id="btn-vogais" class="menu-btn active" onclick="switchTab('vogais')">1° Vogais</button>
-        <button id="btn-abc" class="menu-btn" onclick="switchTab('abc')">2° Abecedário</button>
-        <button id="btn-numeros" class="menu-btn" onclick="switchTab('numeros')">3° Números</button>
-    </div>
+    cacheMensagens.forEach(m => {
+      if (m.de === chatOutro && m.para === eu && !m.lida) {
+        atualizarMensagemFirebase(m.id, { lida: true });
+        m.lida = true;
+        mudou = true;
+      }
+    });
 
-    <!-- 1° SECÇÃO: VOGAIS -->
-    <div id="section-vogais" class="game-section active">
-        <h2>Vamos ler as Vogais! 🗣️</h2>
-        <p>Clica numa vogal para ouvir e aprender novas palavras:</p>
-        <div class="card-container">
-            <button class="letter-btn" onclick="showVowel('A')">A</button>
-            <button class="letter-btn" onclick="showVowel('E')">E</button>
-            <button class="letter-btn" onclick="showVowel('I')">I</button>
-            <button class="letter-btn" onclick="showVowel('O')">O</button>
-            <button class="letter-btn" onclick="showVowel('U')">U</button>
-        </div>
-        <div class="display-card">
-            <p class="big-char" id="vowel-char">A</p>
-            <p class="word-example" id="vowel-word">Abelha 🐝</p>
-        </div>
-    </div>
+    const visiveis = cacheMensagens.filter(m =>
+      ((m.de === eu && m.para === chatOutro) || (m.de === chatOutro && m.para === eu)) &&
+      !(m.apagadaPor || []).includes(eu)
+    );
+    const assinatura = visiveis.map(m => m.id).join(",");
+    if (!forcar && assinatura === chatAssinatura) {
+      actualizarBadges();
+      return;
+    }
+    chatAssinatura = assinatura;
 
-    <!-- 2° SECÇÃO: ABECEDÁRIO -->
-    <div id="section-abc" class="game-section">
-        <h2>O Alfabeto Completo! 🔤</h2>
-        
-        <!-- Seleção de Níveis do Abecedário -->
-        <div class="level-selector">
-            <button id="lvl-abc-1" class="level-btn active" onclick="setAbcLevel(1)">Nível 1 (A - H)</button>
-            <button id="lvl-abc-2" class="level-btn" onclick="setAbcLevel(2)">Nível 2 (I - Q)</button>
-            <button id="lvl-abc-3" class="level-btn" onclick="setAbcLevel(3)">Nível 3 (R - Z)</button>
-        </div>
+    const box = $("chat-mensagens");
+    box.innerHTML = "";
+    if (!visiveis.length) {
+      const p = document.createElement("p");
+      p.className = "chat-vazio";
+      p.textContent = "Ainda não há mensagens. Escreva a primeira.";
+      box.appendChild(p);
+    }
+    visiveis.forEach(m => {
+      const div = document.createElement("div");
+      div.className = "msg " + (m.de === eu ? "msg-minha" : "msg-outra");
+      const txt = document.createElement("div");
+      txt.className = "msg-texto";
+      txt.textContent = m.texto;
+      const meta = document.createElement("div");
+      meta.className = "msg-meta";
+      meta.textContent = formatarData(m.data);
+      const acoes = document.createElement("div");
+      acoes.className = "msg-acoes";
+      const b1 = document.createElement("button");
+      b1.className = "btn-msg";
+      b1.textContent = "Apagar para mim";
+      b1.onclick = () => apagarParaMim(m);
+      acoes.appendChild(b1);
+      if (m.de === eu) {
+        const b2 = document.createElement("button");
+        b2.className = "btn-msg";
+        b2.textContent = "Apagar para todos";
+        b2.onclick = () => apagarParaTodos(m.id);
+        acoes.appendChild(b2);
+      }
+      div.appendChild(txt);
+      div.appendChild(meta);
+      div.appendChild(acoes);
+      box.appendChild(div);
+    });
+    requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+    actualizarBadges();
+  }
 
-        <p>Clica nas letras para ouvir e ver exemplos diferentes!</p>
-        <div class="abc-grid" id="abc-container"></div>
-        <div class="display-card" style="background: #e6fffa; border-color: #4ecdc4;">
-            <p class="big-char" id="abc-char" style="color: #4ecdc4;">A</p>
-            <p class="word-example" id="abc-word">Abelha 🐝</p>
-        </div>
-    </div>
+  function enviarChat() {
+    const texto = $("chat-texto").value.trim();
+    if (!texto || !utilizadorAtual || !chatOutro) return;
+    const novaMsg = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+      de: meuNumero(),
+      para: chatOutro,
+      texto: texto.slice(0, 1000),
+      data: new Date().toISOString(),
+      lida: false,
+      apagadaPor: []
+    };
+    enviarMensagemFirebase(novaMsg);
+    $("chat-texto").value = "";
+    renderChat(true);
+  }
 
-    <!-- 3° SECÇÃO: NÚMEROS -->
-    <div id="section-numeros" class="game-section">
-        <h2>Vamos Contar! 🔢</h2>
-        
-        <!-- Seleção de Níveis dos Números -->
-        <div class="level-selector">
-            <button id="lvl-num-1" class="level-btn active" onclick="setNumLevel(1)">Facilzinho (1 - 10)</button>
-            <button id="lvl-num-2" class="level-btn" onclick="setNumLevel(2)">Intermédio (11 - 50)</button>
-            <button id="lvl-num-3" class="level-btn" onclick="setNumLevel(3)">Super Contador (51 - 100)</button>
-        </div>
+  function apagarParaMim(m) {
+    const eu = meuNumero();
+    const apagados = m.apagadaPor || [];
+    if (!apagados.includes(eu)) {
+      apagados.push(eu);
+      atualizarMensagemFirebase(m.id, { apagadaPor: apagados });
+    }
+    renderChat(true);
+  }
 
-        <div class="score">Pontos: <span id="score-val">0</span> ⭐</div>
-        <p>Quantos objetos vês no quadrado abaixo?</p>
-        <div class="display-card" style="background: #f3f0ff; border-color: #a29bfe;">
-            <div class="count-zone" id="objects-zone">🍎🍎🍎</div>
-        </div>
-        <div class="options-grid" id="options-zone"></div>
-    </div>
+  function apagarParaTodos(id) {
+    if (!confirm("Apagar esta mensagem para todos?")) return;
+    removerMensagemFirebase(id);
+    renderChat(true);
+  }
 
-    <!-- BOTÃO DE DONATIVOS -->
-    <div class="donation-container">
-        <button class="btn-support" onclick="toggleSupport()">APOIA OS NOSSOS PROJETOS ❤️</button>
-        <div id="support-box" class="support-info">
-            <strong>Apoia nossos projetos enviando donativos para este Iban:</strong><br>
-            <span style="font-size: 1.3rem; font-weight: bold; display: block; margin: 10px 0; color: #2f3e46;">
-                0044 0000 73186384101 27
-            </span>
-            OBRIGADO NÓS AGRADECEMOS.
-        </div>
-    </div>
+  function inicializarApp() {
+    garantirAdmin();
 
-    <script>
-        // Dicionário expandido com ARRAY de múltiplos exemplos por letra
-        const dicionarioLetras = {
-            'A': [
-                { palavra: 'Abelha 🐝', som: 'Abelha' },
-                { palavra: 'Anel 💍', som: 'Anel' },
-                { palavra: 'Avião ✈️', som: 'Avião' }
-            ],
-            'B': [
-                { palavra: 'Bola ⚽', som: 'Bola' },
-                { palavra: 'Boneca 🪆', som: 'Boneca' },
-                { palavra: 'Banana 🍌', som: 'Banana' }
-            ],
-            'C': [
-                { palavra: 'Carro 🚗', som: 'Carro' },
-                { palavra: 'Casa 🏠', som: 'Casa' },
-                { palavra: 'Coelho 🐇', som: 'Coelho' }
-            ],
-            'D': [
-                { palavra: 'Dado 🎲', som: 'Dado' },
-                { palavra: 'Dente 🦷', som: 'Dente' },
-                { palavra: 'Dinossauro 🦖', som: 'Dinossauro' }
-            ],
-            'E': [
-                { palavra: 'Elefante 🐘', som: 'Elefante' },
-                { palavra: 'Escova 🪥', som: 'Escova' },
-                { palavra: 'Estrela ⭐', som: 'Estrela' }
-            ],
-            'F': [
-                { palavra: 'Foca 🦭', som: 'Foca' },
-                { palavra: 'Fogo 🔥', som: 'Fogo' },
-                { palavra: 'Faca 🔪', som: 'Faca' }
-            ],
-            'G': [
-                { palavra: 'Gato 🐱', som: 'Gato' },
-                { palavra: 'Girafa 🦒', som: 'Girafa' },
-                { palavra: 'Gelado 🍦', som: 'Gelado' }
-            ],
-            'H': [
-                { palavra: 'Hipopótamo 🦛', som: 'Hipopótamo' },
-                { palavra: 'Hambúrguer 🍔', som: 'Hambúrguer' },
-                { palavra: 'Helicóptero 🚁', som: 'Helicóptero' }
-            ],
-            'I': [
-                { palavra: 'Igreja ⛪', som: 'Igreja' },
-                { palavra: 'Íman 🧲', som: 'Íman' },
-                { palavra: 'Índio 🏹', som: 'Índio' }
-            ],
-            'J': [
-                { palavra: 'Jacaré 🐊', som: 'Jacaré' },
-                { palavra: 'Janela 🪟', som: 'Janela' },
-                { palavra: 'Jarro 🫖', som: 'Jarro' }
-            ],
-            'K': [
-                { palavra: 'Kiwi 🥝', som: 'Kiwi' },
-                { palavra: 'Kung Fu 🥋', som: 'Kung Fu' },
-                { palavra: 'Kart 🏎️', som: 'Kart' }
-            ],
-            'L': [
-                { palavra: 'Leão 🦁', som: 'Leão' },
-                { palavra: 'Livro 📖', som: 'Livro' },
-                { palavra: 'Lua 🌙', som: 'Lua' }
-            ],
-            'M': [
-                { palavra: 'Macaco 🐵', som: 'Macaco' },
-                { palavra: 'Mesa 🪑', som: 'Mesa' },
-                { palavra: 'Mãe 👩‍👦', som: 'Mãe' }
-            ],
-            'N': [
-                { palavra: 'Navio 🚢', som: 'Navio' },
-                { palavra: 'Ninho 🪹', som: 'Ninho' },
-                { palavra: 'Nuvem ☁️', som: 'Nuvem' }
-            ],
-            'O': [
-                { palavra: 'Ovo 🥚', som: 'Ovo' },
-                { palavra: 'Olho 👁️', som: 'Olho' },
-                { palavra: 'Ovelha 🐑', som: 'Ovelha' }
-            ],
-            'P': [
-                { palavra: 'Pato 🦆', som: 'Pato' },
-                { palavra: 'Peixe 🐟', som: 'Peixe' },
-                { palavra: 'Pipa 🪁', som: 'Pipa' }
-            ],
-            'Q': [
-                { palavra: 'Queijo 🧀', som: 'Queijo' },
-                { palavra: 'Quarto 🛏️', som: 'Quarto' },
-                { palavra: 'Quati 🦝', som: 'Quati' }
-            ],
-            'R': [
-                { palavra: 'Rato 🐭', som: 'Rato' },
-                { palavra: 'Relógio ⌚', som: 'Relógio' },
-                { palavra: 'Rei 👑', som: 'Rei' }
-            ],
-            'S': [
-                { palavra: 'Sapo 🐸', som: 'Sapo' },
-                { palavra: 'Sol ☀️', som: 'Sol' },
-                { palavra: 'Sino 🔔', som: 'Sino' }
-            ],
-            'T': [
-                { palavra: 'Tartaruga 🐢', som: 'Tartaruga' },
-                { palavra: 'Comboio 🚂', som: 'Comboio' },
-                { palavra: 'Telefone ☎️', som: 'Telefone' }
-            ],
-            'U': [
-                { palavra: 'Uva 🍇', som: 'Uva' },
-                { palavra: 'Urso 🐻', som: 'Urso' },
-                { palavra: 'Unha 💅', som: 'Unha' }
-            ],
-            'V': [
-                { palavra: 'Vaca 🐮', som: 'Vaca' },
-                { palavra: 'Vela 🕯️', som: 'Vela' },
-                { palavra: 'Vento 💨', som: 'Vento' }
-            ],
-            'W': [
-                { palavra: 'Waterpolo 🤽', som: 'Waterpolo' },
-                { palavra: 'Wi-Fi 📶', som: 'UaifaI' },
-                { palavra: 'Waffle 🧇', som: 'Uáfol' }
-            ],
-            'X': [
-                { palavra: 'Xícara ☕', som: 'Xícara' },
-                { palavra: 'Xailes 🧣', som: 'Xailes' },
-                { palavra: 'Xilofone 🪘', som: 'Xilofone' }
-            ],
-            'Y': [
-                { palavra: 'Yoga 🧘', som: 'Ioga' },
-                { palavra: 'Yakitori 🍢', som: 'Iaquitori' },
-                { palavra: 'YouTube 📺', som: 'Iutub' }
-            ],
-            'Z': [
-                { palavra: 'Zebra 🦓', som: 'Zebra' },
-                { filename: 'Zero 0️⃣', palavra: 'Zero 0️⃣', som: 'Zero' },
-                { palavra: 'Zangão 🐝', som: 'Zangão' }
-            ]
-        };
+    // Sincronização em tempo real de utilizadores
+    onValue(ref(db, 'utilizadores'), (snapshot) => {
+      const data = snapshot.val();
+      cacheUtilizadores = data ? Object.values(data) : [];
+      if (!utilizadorAtual) {
+        carregarSessao();
+      } else {
+        const uAtualizado = cacheUtilizadores.find(x => x.numero === utilizadorAtual.numero);
+        if (uAtualizado) utilizadorAtual = uAtualizado;
+      }
+      actualizarSessaoUI();
+      if (!$("ecra-admin").classList.contains("oculto")) renderAdmin();
+      if (!$("ecra-conta").classList.contains("oculto")) mostrarConta();
+    });
 
-        // Estado atual do jogo
-        let currentAbcLevel = 1;
-        let currentNumLevel = 1;
-        let correctAnswer = 0;
-        let score = 0;
-        const objetosContagem = ['🍎', '⭐️', '🎈', '🐠', '🚗', '🍬', '🐝', '🦕', '⚽️'];
+    // Sincronização em tempo real de mensagens
+    onValue(ref(db, 'mensagens'), (snapshot) => {
+      const data = snapshot.val();
+      cacheMensagens = data ? Object.values(data) : [];
+      if (!$("ecra-chat").classList.contains("oculto")) renderChat(false);
+      if (!$("ecra-conta").classList.contains("oculto")) actualizarBadges();
+      if (!$("ecra-admin").classList.contains("oculto")) renderAdmin();
+    });
+  }
 
-        // Sintetizador de Voz
-        function falar(texto) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const fala = new SpeechSynthesisUtterance(texto);
-                fala.lang = 'pt-PT';
-                fala.rate = 0.85; 
-                window.speechSynthesis.speak(fala);
-            }
-        }
+  function voltarInicio() {
+    tipoPendente = null;
+    mostrarEcra("ecra-inicio");
+  }
 
-        // Troca de Separadores Principais
-        function switchTab(section) {
-            document.querySelectorAll('.game-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-            
-            document.getElementById('section-' + section).classList.add('active');
-            document.getElementById('btn-' + section).classList.add('active');
+  // Disponibilizar funções globalmente para os eventos HTML onclick
+  window.iniciarQuiz = iniciarQuiz;
+  window.proximaPergunta = proximaPergunta;
+  window.voltarConta = voltarConta;
+  window.ouvirPergunta = ouvirPergunta;
+  window.alternarVoz = alternarVoz;
+  window.confirmarOutroQuiz = confirmarOutroQuiz;
+  window.irParaPagamento = irParaPagamento;
+  window.submeterAuth = submeterAuth;
+  window.alternarAuth = alternarAuth;
+  window.terminarSessao = terminarSessao;
+  window.mostrarConta = mostrarConta;
+  window.solicitarDesbloqueio = solicitarDesbloqueio;
+  window.reabrirEmail = reabrirEmail;
+  window.abrirChatAdmin = abrirChatAdmin;
+  window.voltarDoChat = voltarDoChat;
+  window.enviarChat = enviarChat;
+  window.voltarInicio = voltarInicio;
+  window.fecharModal = fecharModal;
 
-            if(section === 'abc') {
-                renderAbcGrid();
-            } else if(section === 'numeros') {
-                initGameNumeros();
-            }
-        }
-
-        // Mostra Vogal (Escolhe uma das 3 palavras aleatoriamente ao clicar)
-        function showVowel(letra) {
-            const opcoes = dicionarioLetras[letra];
-            const info = opcoes[Math.floor(Math.random() * opcoes.length)];
-            
-            document.getElementById('vowel-char').innerText = letra;
-            document.getElementById('vowel-word').innerText = info.palavra;
-            falar(letra + " de " + info.som);
-        }
-
-        // Mostra Letra do ABC (Escolhe uma das 3 palavras aleatoriamente ao clicar)
-        function showAbc(letra) {
-            const opcoes = dicionarioLetras[letra];
-            const info = opcoes[Math.floor(Math.random() * opcoes.length)];
-            
-            document.getElementById('abc-char').innerText = letra;
-            document.getElementById('abc-word').innerText = info.palavra;
-            falar(letra + " de " + info.som);
-        }
-
-        // Controlar e Renderizar os Níveis do Abecedário
-        function setAbcLevel(lvl) {
-            currentAbcLevel = lvl;
-            document.querySelectorAll('[id^="lvl-abc-"]').forEach(b => b.classList.remove('active'));
-            document.getElementById('lvl-abc-' + lvl).classList.add('active');
-            renderAbcGrid();
-        }
-
-        function renderAbcGrid() {
-            const abcContainer = document.getElementById('abc-container');
-            abcContainer.innerHTML = '';
-            
-            const todasLetras = Object.keys(dicionarioLetras);
-            let letrasFiltradas = [];
-
-            // Divisão das letras por níveis
-            if(currentAbcLevel === 1) {
-                letrasFiltradas = todasLetras.slice(0, 8); // A até H
-            } else if(currentAbcLevel === 2) {
-                letrasFiltradas = todasLetras.slice(8, 17); // I até Q
-            } else {
-                letrasFiltradas = todasLetras.slice(17); // R até Z
-            }
-
-            letrasFiltradas.forEach(letra => {
-                const btn = document.createElement('button');
-                btn.className = 'letter-btn';
-                btn.innerText = letra;
-                btn.onclick = () => showAbc(letra);
-                abcContainer.appendChild(btn);
-            });
-        }
-
-        // Controlar Níveis dos Números
-        function setNumLevel(lvl) {
-            currentNumLevel = lvl;
-            document.querySelectorAll('[id^="lvl-num-"]').forEach(b => b.classList.remove('active'));
-            document.getElementById('lvl-num-' + lvl).classList.add('active');
-            initGameNumeros();
-        }
-
-        // Jogo Dinâmico de Contar com base no Nível Ativo
-        function initGameNumeros() {
-            let min = 1, max = 10;
-
-            if(currentNumLevel === 2) {
-                min = 11; max = 50;
-            } else if(currentNumLevel === 3) {
-                min = 51; max = 100;
-            }
-
-            // Define o número correto com base no intervalo do nível
-            const numObjetos = Math.floor(Math.random() * (max - min + 1)) + min;
-            correctAnswer = numObjetos;
-            
-            const emojiEscolhido = objetosContagem[Math.floor(Math.random() * objetosContagem.length)];
-            
-            // Desenhar os emojis estruturados em blocos de 10
-            let displayHTML = '';
-            for (let i = 1; i <= numObjetos; i++) {
-                displayHTML += emojiEscolhido;
-                if (i % 10 === 0) displayHTML += '<br>'; 
-            }
-            
-            document.getElementById('objects-zone').innerHTML = displayHTML;
-            
-            // Gerar as opções de resposta inteligentes
-            let opcoes = [correctAnswer];
-            while(opcoes.length < 3) {
-                // Margem de erro próxima para ser desafiante
-                let variacao = Math.floor(Math.random() * 7) - 3; 
-                let randomOpt = correctAnswer + variacao;
-                
-                if(randomOpt >= min && randomOpt <= max && !opcoes.includes(randomOpt)) {
-                    opcoes.push(randomOpt);
-                }
-            }
-            
-            // Se falhar opções válidas no intervalo, gerar alternativas genéricas estruturadas
-            while(opcoes.length < 3) {
-                let randomOpt = Math.floor(Math.random() * (max - min + 1)) + min;
-                if(!opcoes.includes(randomOpt)) opcoes.push(randomOpt);
-            }
-            
-            // Baralhar as alternativas
-            opcoes.sort(() => Math.random() - 0.5);
-
-            const optionsZone = document.getElementById('options-zone');
-            optionsZone.innerHTML = '';
-            opcoes.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = 'option-btn';
-                btn.innerText = opt;
-                btn.onclick = () => checkAnswer(opt);
-                optionsZone.appendChild(btn);
-            });
-        }
-
-        function checkAnswer(chosen) {
-            if(chosen === correctAnswer) {
-                score++;
-                document.getElementById('score-val').innerText = score;
-                falar("Muito bem! É o número " + correctAnswer);
-                initGameNumeros();
-            } else {
-                falar("Quase! Conta outra vez com atenção.");
-            }
-        }
-
-        // Visualização do IBAN
-        function toggleSupport() {
-            const box = document.getElementById('support-box');
-            if (box.style.display === 'block') {
-                box.style.display = 'none';
-            } else {
-                box.style.display = 'block';
-                box.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        // Inicialização padrão
-        window.onload = () => {
-            showVowel('A');
-            renderAbcGrid();
-            showAbc('A');
-        };
-    </script>
+  inicializarApp();
+</script>
 </body>
 </html>
